@@ -493,8 +493,12 @@ public class AutoClickerGUI extends Application implements NativeKeyListener, Na
 		AutoClicker.runFlag = false;
 		AutoClicker.count = 0;
 		AutoClicker.itemNumber = 1;
+		AutoClicker.reset = false;
 		
 		paramFlag = 2;
+		
+		// end timer thread
+		if (AutoClicker.resetFlag) {AutoClicker.timer.interrupt();}
 		
 		// wait for running thread to end
 		if (startFlag == true) {
@@ -503,9 +507,6 @@ public class AutoClickerGUI extends Application implements NativeKeyListener, Na
 			
 			startFlag = false;
 		}
-		
-		// end timer thread
-		if (AutoClicker.resetFlag) {AutoClicker.timer.interrupt();}
 		
 		paramFlag = 0;
 		
