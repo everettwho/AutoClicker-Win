@@ -505,7 +505,7 @@ public class AutoClickerGUI extends Application implements NativeKeyListener, Na
 		}
 		
 		// end timer thread
-		AutoClicker.timer.interrupt();
+		if (AutoClicker.resetFlag) {AutoClicker.timer.interrupt();}
 		
 		paramFlag = 0;
 		
