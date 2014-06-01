@@ -89,13 +89,12 @@ public class AutoClicker extends AutoClickerGUI implements Runnable{
 		try {
 			robot = new Robot();
 			depositFlag = true;
+			count = 0;
 			cycleCount = 0;
 			
-			if (resetFlag) {
-				// start new timer thread
-				timer = new Thread(new Timer());
-				timer.start();
-			}
+			// start new timer thread
+			timer = new Thread(new Timer());
+			timer.start();
 
 			if (pick == 6) {
 				item1Amount /= 14;
@@ -115,18 +114,21 @@ public class AutoClicker extends AutoClickerGUI implements Runnable{
 		    	if (reset) {
 		    		resetClient();
 		    		
-		    		robot.mouseMove(cameraX, cameraY);
-        			robot.mousePress(InputEvent.BUTTON1_MASK);
-		            robot.mouseRelease(InputEvent.BUTTON1_MASK);
-		            
-		            try {Thread.sleep(cameraDelay);}
-		            catch (InterruptedException ie) {}
+		    		try {
+			    		robot.mouseMove(cameraX, cameraY);
+			    		Thread.sleep(200);
+	        			robot.mousePress(InputEvent.BUTTON1_MASK);
+			            robot.mouseRelease(InputEvent.BUTTON1_MASK);
+			            Thread.sleep(cameraDelay);
+			        } catch (InterruptedException ie) {}
 		            
 		            
 		            // restart timer thread
 		            reset = false;
 		            timer = new Thread(new Timer());
 		            timer.start();
+		            
+		            depositFlag = true;
 		    	}
 		    	
 		    	switch (pick) {
@@ -176,6 +178,8 @@ public class AutoClicker extends AutoClickerGUI implements Runnable{
 		    			if (itemNumber == 2 && count >= item2Amount) {
 	    					presetX -= 40;
 	    					robot.keyPress(NativeKeyEvent.VK_ESCAPE);
+	    		            try {Thread.sleep(300);}
+	    		            catch (InterruptedException ie) {}
 	    		            robot.keyRelease(NativeKeyEvent.VK_ESCAPE);
 	    		            
 		    				robot.keyPress(NativeKeyEvent.VK_BACK_QUOTE);
@@ -208,6 +212,12 @@ public class AutoClicker extends AutoClickerGUI implements Runnable{
 		    			}
 		    			break;
 		    		case 10:
+		    			for (int i = 0; i < 4; i++) {
+		    				superheat(i);
+		    				if(!runFlag) {return;}
+		    			}
+		    			break;
+		    		case 11:
 		    			int save = gameDelay;
 		    			gameDelay = 2000;
 		    			
@@ -248,6 +258,7 @@ public class AutoClicker extends AutoClickerGUI implements Runnable{
 	       			Thread.sleep(1000);
 	       			
 		            robot.keyPress(NativeKeyEvent.VK_ESCAPE);
+		            Thread.sleep(300);
 		            robot.keyRelease(NativeKeyEvent.VK_ESCAPE);
 		            Thread.sleep(1500);
 		            break;
@@ -374,6 +385,7 @@ public class AutoClicker extends AutoClickerGUI implements Runnable{
 		            robot.mouseRelease(InputEvent.BUTTON1_MASK);
 	       			Thread.sleep(1000);
 		            robot.keyPress(NativeKeyEvent.VK_ESCAPE);
+		            Thread.sleep(300);
 		            robot.keyRelease(NativeKeyEvent.VK_ESCAPE);
 		            Thread.sleep(1500);
 		            break;
@@ -417,6 +429,7 @@ public class AutoClicker extends AutoClickerGUI implements Runnable{
 		            robot.mouseRelease(InputEvent.BUTTON1_MASK);
 	       			Thread.sleep(1000);
 		            robot.keyPress(NativeKeyEvent.VK_ESCAPE);
+		            Thread.sleep(300);
 		            robot.keyRelease(NativeKeyEvent.VK_ESCAPE);
 		            Thread.sleep(1500);
 		            break;
@@ -444,6 +457,7 @@ public class AutoClicker extends AutoClickerGUI implements Runnable{
         		case 5:
         			if (cycleCount >= 20) {
         				robot.mouseMove(cameraX, cameraY);
+    		            Thread.sleep(200);
             			robot.mousePress(InputEvent.BUTTON1_MASK);
     		            robot.mouseRelease(InputEvent.BUTTON1_MASK);
     		            Thread.sleep(cameraDelay);
@@ -521,6 +535,7 @@ public class AutoClicker extends AutoClickerGUI implements Runnable{
         		case 5:
         			if (cycleCount >= 14) {
         				robot.mouseMove(cameraX, cameraY);
+    		            Thread.sleep(200);
             			robot.mousePress(InputEvent.BUTTON1_MASK);
     		            robot.mouseRelease(InputEvent.BUTTON1_MASK);
     		            Thread.sleep(cameraDelay);
@@ -561,6 +576,7 @@ public class AutoClicker extends AutoClickerGUI implements Runnable{
 		            robot.mouseRelease(InputEvent.BUTTON1_MASK);
 	       			Thread.sleep(1000);
 		            robot.keyPress(NativeKeyEvent.VK_ESCAPE);
+		            Thread.sleep(300);
 		            robot.keyRelease(NativeKeyEvent.VK_ESCAPE);
 		            Thread.sleep(1500);
 		            break;
@@ -588,6 +604,7 @@ public class AutoClicker extends AutoClickerGUI implements Runnable{
         		case 5:
         			if (cycleCount >= 10) {
         				robot.mouseMove(cameraX, cameraY);
+    		            Thread.sleep(200);
             			robot.mousePress(InputEvent.BUTTON1_MASK);
     		            robot.mouseRelease(InputEvent.BUTTON1_MASK);
     		            Thread.sleep(cameraDelay);
@@ -780,6 +797,70 @@ public class AutoClicker extends AutoClickerGUI implements Runnable{
 		            break;
         	}
  		} catch (InterruptedException ex) {}
+	}
+	
+	public static void superheat(int i) {
+		try {
+        	switch(i) {
+        		case 0:
+        			if (depositFlag) {
+	        			robot.mouseMove(bankerX, bankerY);
+	        			robot.mousePress(InputEvent.BUTTON1_MASK);
+			            robot.mouseRelease(InputEvent.BUTTON1_MASK);
+			            Thread.sleep(bankDelay);
+			            depositFlag = false;
+        			}
+		            break;
+        		case 1:
+        			robot.mouseMove(presetX, presetY);
+        			robot.mousePress(InputEvent.BUTTON1_MASK);
+		            robot.mouseRelease(InputEvent.BUTTON1_MASK);
+		            Thread.sleep(1500);
+		            break;
+        		case 2:
+		            if (cycleCount >= 13) {
+			            moveIndex = rand.nextInt(4);
+			            robot.keyPress(move[moveIndex]);
+			            Thread.sleep((long) (Math.random() + 1.2) * 1000);
+			            robot.keyRelease(move[moveIndex]);
+		            }
+		            cycleCount++;
+		            
+        			while (count < 9) {
+        				if (!runFlag) {return;}
+        				
+	        			robot.mouseMove(item1X, item1Y);
+	        			robot.mousePress(InputEvent.BUTTON1_MASK);
+			            robot.mouseRelease(InputEvent.BUTTON1_MASK);
+			            Thread.sleep(500);
+			            
+			            robot.mousePress(InputEvent.BUTTON1_MASK);
+			            robot.mouseRelease(InputEvent.BUTTON1_MASK);
+			            Thread.sleep(2000);
+			            
+			            count++;
+        			}
+		            
+        			count = 0; 
+		            break;
+        		case 3:
+        			if (cycleCount >= 14) {
+        				robot.mouseMove(cameraX, cameraY);
+        				Thread.sleep(200);
+            			robot.mousePress(InputEvent.BUTTON1_MASK);
+    		            robot.mouseRelease(InputEvent.BUTTON1_MASK);
+    		            Thread.sleep(cameraDelay);
+    		            
+    		            cycleCount = 0;
+        			}
+        			
+        			robot.mouseMove(bankerX, bankerY);
+        			robot.mousePress(InputEvent.BUTTON1_MASK);
+		            robot.mouseRelease(InputEvent.BUTTON1_MASK);
+		            Thread.sleep(bankDelay);
+		            break;
+        	}
+        } catch (InterruptedException ex) {}
 	}
 	
 	public static void resetClient() {

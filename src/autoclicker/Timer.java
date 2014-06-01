@@ -5,9 +5,10 @@ public class Timer implements Runnable{
 		try {Thread.sleep(6 * 60 * 60 * 1000);}
 		catch (InterruptedException ie) {return;}
 		
-//		try {Thread.sleep(10000);}
+//		try {Thread.sleep(30000);}
 //		catch (InterruptedException ie) {return;}
 		
 		if (AutoClicker.resetFlag) {AutoClicker.reset = true;}
+		else {AutoClickerGUI.resetAll();}
 	}
 }

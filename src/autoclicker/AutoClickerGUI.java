@@ -83,6 +83,7 @@ public class AutoClickerGUI extends Application implements NativeKeyListener, Na
 			"Shieldbows",
 			"Ivy",
 			"Enchant Bolts ",
+			"Superheat Item", 
 			"Test Reset")
 			);
 
@@ -418,6 +419,12 @@ public class AutoClickerGUI extends Application implements NativeKeyListener, Na
 				case 9:
 					message.setText("Enchant (I1)   \n\n\n\n");
 					break;
+				case 10:
+					message.setText("Banker         \n" +
+									"Preset         \n" +
+									"Superheat (I1) \n" +
+									"Deposit (P)    \n" +
+									"Camera (P)     ");
 			}
 		}
 	}
@@ -498,7 +505,7 @@ public class AutoClickerGUI extends Application implements NativeKeyListener, Na
 		paramFlag = 2;
 		
 		// end timer thread
-		if (AutoClicker.resetFlag) {AutoClicker.timer.interrupt();}
+		AutoClicker.timer.interrupt();
 		
 		// wait for running thread to end
 		if (startFlag == true) {
