@@ -112,9 +112,10 @@ public class AutoClicker extends AutoClickerGUI implements Runnable{
 		   
 		    while (true) {
 		    	if (reset) {
-		    		resetClient();
-		    		
 		    		try {
+		    			Thread.sleep(4000);
+		    			resetClient();
+		    		
 			    		robot.mouseMove(cameraX, cameraY);
 			    		Thread.sleep(200);
 	        			robot.mousePress(InputEvent.BUTTON1_MASK);
