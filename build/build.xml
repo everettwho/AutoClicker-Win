@@ -112,7 +112,7 @@
 		
 		<fx:application id="fxApplication"
 			name="AutoClicker"
-			mainClass="autoclicker.AutoClickerGUI"
+			mainClass="autoclicker.Launcher"
 		/>
 	
 		<mkdir dir="build/classes/META-INF" />

@@ -11,7 +11,7 @@
   </resources>
   <resources>
     <j2se version="1.6+" href="http://java.sun.com/products/autodl/j2se"/>
-    <jar href="AutoClicker.jar" size="25094" download="eager" />
+    <jar href="AutoClicker.jar" size="25614" download="eager" />
     <jar href="libs/JNativeHook.jar" size="154972" download="eager" />
     <jar href="libs/commons-configuration-1.10.jar" size="362679" download="eager" />
     <jar href="libs/commons-lang-2.6.jar" size="284220" download="eager" />
@@ -20,6 +20,6 @@
   <applet-desc  width="0" height="0" main-class="com.javafx.main.NoJavaFXFallback"  name="AutoClicker" >
     <param name="requiredFXVersion" value="2.2+"/>
   </applet-desc>
-  <jfx:javafx-desc  width="0" height="0" main-class="autoclicker.AutoClickerGUI"  name="AutoClicker" />
+  <jfx:javafx-desc  width="0" height="0" main-class="autoclicker.Launcher"  name="AutoClicker" />
   <update check="background"/>
 </jnlp>
