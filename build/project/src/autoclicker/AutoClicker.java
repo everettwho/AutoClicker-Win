@@ -75,9 +75,12 @@ public class AutoClicker extends AutoClickerGUI implements Runnable{
 	private static int cameraDelay = 500;		// delay after clicking camera reset
 	
 	private static boolean depositFlag;			// controls banking
+	private static boolean clickToggle; 		// controls ivy clicking
+	
+	private static double CIRCLE_CONST = 0.7071067;
 	
 	private static Robot robot;
-	private static Color ivyColor;
+	private static String pixelColor;
 	private static Random rand = new Random();
 	
 	private enum Direction {LEFT, RIGHT, UP, DOWN}
@@ -89,6 +92,7 @@ public class AutoClicker extends AutoClickerGUI implements Runnable{
 		try {
 			robot = new Robot();
 			depositFlag = true;
+			clickToggle = true;
 			count = 0;
 			cycleCount = 0;
 			
@@ -106,7 +110,7 @@ public class AutoClicker extends AutoClickerGUI implements Runnable{
 				ivyY = item1Y;
 				
 				// get ivy pixel color
-				ivyColor = robot.getPixelColor(ivyX, ivyY);
+				pixelColor = robot.getPixelColor(ivyX, ivyY).toString();
 				ivyPosition = Direction.LEFT;
 			}
 		   
@@ -115,12 +119,13 @@ public class AutoClicker extends AutoClickerGUI implements Runnable{
 		    		try {
 		    			Thread.sleep(4000);
 		    			resetClient();
-		    		
-			    		robot.mouseMove(cameraX, cameraY);
-			    		Thread.sleep(200);
-	        			robot.mousePress(InputEvent.BUTTON1_MASK);
-			            robot.mouseRelease(InputEvent.BUTTON1_MASK);
-			            Thread.sleep(cameraDelay);
+			    		resetCamera();
+			    		
+			    		if (pick == 8) {
+			    			robot.keyPress(NativeKeyEvent.VK_UP);
+			    			Thread.sleep(2000);
+			    			robot.keyRelease(NativeKeyEvent.VK_UP);
+			    		}
 			        } catch (InterruptedException ie) {}
 		            
 		            
@@ -239,14 +244,14 @@ public class AutoClicker extends AutoClickerGUI implements Runnable{
         	switch(i) {
         		case 0:
         			if (depositFlag) {
-	        			robot.mouseMove(bankerX, bankerY);
-	        			robot.mousePress(InputEvent.BUTTON1_MASK);
-			            robot.mouseRelease(InputEvent.BUTTON1_MASK);
-			            Thread.sleep(bankDelay);
+	        			clickBanker();
+	        			pixelColor = robot.getPixelColor(item1X, item1Y).toString();
 			            depositFlag = false;
         			}
 		            break;
         		case 1:
+        			checkInBank(item1X, item1Y);
+        			
         			robot.mouseMove(item1X, item1Y);
         			robot.mousePress(InputEvent.BUTTON3_MASK);
 		            robot.mouseRelease(InputEvent.BUTTON3_MASK);
@@ -258,10 +263,7 @@ public class AutoClicker extends AutoClickerGUI implements Runnable{
 		            robot.mouseRelease(InputEvent.BUTTON1_MASK);
 	       			Thread.sleep(1000);
 	       			
-		            robot.keyPress(NativeKeyEvent.VK_ESCAPE);
-		            Thread.sleep(300);
-		            robot.keyRelease(NativeKeyEvent.VK_ESCAPE);
-		            Thread.sleep(1500);
+		            pressESC();
 		            break;
         		case 3:
         			robot.mouseMove(invX, invY);
@@ -385,10 +387,8 @@ public class AutoClicker extends AutoClickerGUI implements Runnable{
         			robot.mousePress(InputEvent.BUTTON1_MASK);
 		            robot.mouseRelease(InputEvent.BUTTON1_MASK);
 	       			Thread.sleep(1000);
-		            robot.keyPress(NativeKeyEvent.VK_ESCAPE);
-		            Thread.sleep(300);
-		            robot.keyRelease(NativeKeyEvent.VK_ESCAPE);
-		            Thread.sleep(1500);
+
+	       			pressESC();
 		            break;
         		case 3:
         			robot.mouseMove(invX, invY);
@@ -411,14 +411,14 @@ public class AutoClicker extends AutoClickerGUI implements Runnable{
         	switch(i) {
         		case 0:
         			if (depositFlag) {
-	        			robot.mouseMove(bankerX, bankerY);
-	        			robot.mousePress(InputEvent.BUTTON1_MASK);
-			            robot.mouseRelease(InputEvent.BUTTON1_MASK);
-			            Thread.sleep(bankDelay);
+	        			clickBanker();
+	        			pixelColor = robot.getPixelColor(item1X, item1Y - 100).toString();
 			            depositFlag = false;
         			}
 		            break;
         		case 1:
+        			checkInBank(item1X, item1Y - 100);
+        			
         			robot.mouseMove(item1X, item1Y);
         			robot.mousePress(InputEvent.BUTTON3_MASK);
 		            robot.mouseRelease(InputEvent.BUTTON3_MASK);
@@ -429,10 +429,8 @@ public class AutoClicker extends AutoClickerGUI implements Runnable{
         			robot.mousePress(InputEvent.BUTTON1_MASK);
 		            robot.mouseRelease(InputEvent.BUTTON1_MASK);
 	       			Thread.sleep(1000);
-		            robot.keyPress(NativeKeyEvent.VK_ESCAPE);
-		            Thread.sleep(300);
-		            robot.keyRelease(NativeKeyEvent.VK_ESCAPE);
-		            Thread.sleep(1500);
+	       			
+		            pressESC();
 		            break;
         		case 3:
         			robot.mouseMove(invX, invY);
@@ -457,12 +455,7 @@ public class AutoClicker extends AutoClickerGUI implements Runnable{
 		            break;
         		case 5:
         			if (cycleCount >= 20) {
-        				robot.mouseMove(cameraX, cameraY);
-    		            Thread.sleep(200);
-            			robot.mousePress(InputEvent.BUTTON1_MASK);
-    		            robot.mouseRelease(InputEvent.BUTTON1_MASK);
-    		            Thread.sleep(cameraDelay);
-    		            
+        				resetCamera();
     		            cycleCount = 0;
         			}
         			
@@ -492,14 +485,14 @@ public class AutoClicker extends AutoClickerGUI implements Runnable{
         	switch(i) {
         		case 0:
         			if (depositFlag) {
-	        			robot.mouseMove(bankerX, bankerY);
-	        			robot.mousePress(InputEvent.BUTTON1_MASK);
-			            robot.mouseRelease(InputEvent.BUTTON1_MASK);
-			            Thread.sleep(bankDelay);
+	        			clickBanker();
+	        			pixelColor = robot.getPixelColor(presetX, presetY).toString();
 			            depositFlag = false;
         			}
 		            break;
         		case 1:
+        			checkInBank(presetX, presetY);
+        			
         			robot.mouseMove(presetX, presetY);
         			robot.mousePress(InputEvent.BUTTON1_MASK);
 		            robot.mouseRelease(InputEvent.BUTTON1_MASK);
@@ -535,12 +528,7 @@ public class AutoClicker extends AutoClickerGUI implements Runnable{
 		            break;
         		case 5:
         			if (cycleCount >= 14) {
-        				robot.mouseMove(cameraX, cameraY);
-    		            Thread.sleep(200);
-            			robot.mousePress(InputEvent.BUTTON1_MASK);
-    		            robot.mouseRelease(InputEvent.BUTTON1_MASK);
-    		            Thread.sleep(cameraDelay);
-    		            
+        				resetCamera();
     		            cycleCount = 0;
         			}
         			
@@ -558,14 +546,14 @@ public class AutoClicker extends AutoClickerGUI implements Runnable{
         	switch(i) {
         		case 0:
         			if (depositFlag) {
-	        			robot.mouseMove(bankerX, bankerY);
-	        			robot.mousePress(InputEvent.BUTTON1_MASK);
-			            robot.mouseRelease(InputEvent.BUTTON1_MASK);
-			            Thread.sleep(bankDelay);
+	        			clickBanker();
+	        			pixelColor = robot.getPixelColor(item1X, item1Y).toString();
 			            depositFlag = false;
         			}
 		            break;
         		case 1:
+        			checkInBank(item1X, item1Y);
+        			
         			robot.mouseMove(item1X, item1Y);
         			robot.mousePress(InputEvent.BUTTON3_MASK);
 		            robot.mouseRelease(InputEvent.BUTTON3_MASK);
@@ -576,10 +564,8 @@ public class AutoClicker extends AutoClickerGUI implements Runnable{
         			robot.mousePress(InputEvent.BUTTON1_MASK);
 		            robot.mouseRelease(InputEvent.BUTTON1_MASK);
 	       			Thread.sleep(1000);
-		            robot.keyPress(NativeKeyEvent.VK_ESCAPE);
-		            Thread.sleep(300);
-		            robot.keyRelease(NativeKeyEvent.VK_ESCAPE);
-		            Thread.sleep(1500);
+
+	       			pressESC();
 		            break;
         		case 3:
         			robot.mouseMove(invX, invY);
@@ -604,12 +590,7 @@ public class AutoClicker extends AutoClickerGUI implements Runnable{
 		            break;
         		case 5:
         			if (cycleCount >= 10) {
-        				robot.mouseMove(cameraX, cameraY);
-    		            Thread.sleep(200);
-            			robot.mousePress(InputEvent.BUTTON1_MASK);
-    		            robot.mouseRelease(InputEvent.BUTTON1_MASK);
-    		            Thread.sleep(cameraDelay);
-    		            
+        				resetCamera();
     		            cycleCount = 0;
         			}
         			
@@ -638,133 +619,76 @@ public class AutoClicker extends AutoClickerGUI implements Runnable{
 		// if current ivy is left
 		if (ivyPosition == Direction.LEFT) {
 			// check if pixel has changed
-			if (robot.getPixelColor(ivyX, ivyY).toString().equals(ivyColor.toString())) {
+			if (robot.getPixelColor(ivyX, ivyY).toString().equals(pixelColor)) {
 				robot.mouseMove(ivyX, ivyY);
     			robot.mousePress(InputEvent.BUTTON1_MASK);
 	            robot.mouseRelease(InputEvent.BUTTON1_MASK);
 	            
+	            // click every 30 seconds
 	    		try {
-	    			Thread.sleep(10000);
+	    			if (clickToggle) {
+	    				Thread.sleep(15000);
+	    				clickToggle = false;
+	    			} else {clickToggle = true;}
 	    		} catch (InterruptedException ex) {}
 			} else {
-				int tempX = ivyX + 200;		// temporary x, y for ivy search
-				int tempY = ivyY;
-				Color temp = robot.getPixelColor(ivyX + 200, ivyY);
-				
-				// check all neighboring pixels for ivy
-				while(true) {
-					if (!(temp.getRed() > 110 || temp.getBlue() > 150 || temp.getBlue() > 80)) {break;}
-					
-					temp = robot.getPixelColor(tempX + 2, tempY);
-					if (!(temp.getRed() > 110 || temp.getBlue() > 150 || temp.getBlue() > 80)) {
-						tempX += 2;
-						break;
+				// check neighbors for ivy
+				if (!checkNeighbors(ivyX + 200, ivyY, 2)) {
+					if (!checkNeighbors(ivyX + 200, ivyY, 1)) {
+						try {
+			    			Thread.sleep(4000);
+			    		} catch (InterruptedException ex) {}
+						
+						return;
 					}
-					
-					temp = robot.getPixelColor(tempX, tempY - 2);
-					if (!(temp.getRed() > 110 || temp.getBlue() > 150 || temp.getBlue() > 80)) {
-						tempY -= 2;
-						break;
-					}
-					
-					temp = robot.getPixelColor(tempX - 2, tempY);
-					if (!(temp.getRed() > 110 || temp.getBlue() > 150 || temp.getBlue() > 80)) {
-						tempX -= 2;
-						break;
-					}
-					
-					temp = robot.getPixelColor(tempX, tempY + 2);
-					if (!(temp.getRed() > 110 || temp.getBlue() > 150 || temp.getBlue() > 80)) {
-						tempY += 2;
-						break;
-					}
-					
-					try {
-		    			Thread.sleep(4000);
-		    		} catch (InterruptedException ex) {}
-					
-					return;
-				}
-				
-				// click if ivy is found
-				robot.mouseMove(tempX, tempY);
-    			robot.mousePress(InputEvent.BUTTON1_MASK);
-	            robot.mouseRelease(InputEvent.BUTTON1_MASK);
+				}	
 	            
+				// wait for player to move
 	            try {
 	    			Thread.sleep(2000);
 	    		} catch (InterruptedException ex) {}
 	            
 	            // retrieve new pixel color and update direction
-	            ivyColor = robot.getPixelColor(ivyX, ivyY);
+	            pixelColor = robot.getPixelColor(ivyX, ivyY).toString();
 	            ivyPosition = Direction.RIGHT;
 	            
 	            try {
-	    			Thread.sleep(13000);
+	    			Thread.sleep(5000);
 	    		} catch (InterruptedException ex) {}
 			}
 		} else {
 			// same as above
-			if (robot.getPixelColor(ivyX, ivyY).toString().equals(ivyColor.toString())) {
+			if (robot.getPixelColor(ivyX, ivyY).toString().equals(pixelColor)) {
 				robot.mouseMove(ivyX, ivyY);
     			robot.mousePress(InputEvent.BUTTON1_MASK);
 	            robot.mouseRelease(InputEvent.BUTTON1_MASK);
 	            
 	            try {
-	    			Thread.sleep(10000);
+	    			if (clickToggle) {
+	    				Thread.sleep(15000);
+	    				clickToggle = false;
+	    			} else {clickToggle = true;}
 	    		} catch (InterruptedException ex) {}
 			} else {
-				int tempX = ivyX - 135;
-				int tempY = ivyY;
-				Color temp = robot.getPixelColor(ivyX - 135, ivyY);
+				if (!checkNeighbors(ivyX - 100, ivyY, 2)) {
+					if (!checkNeighbors(ivyX - 100, ivyY, 1)) {
+						try {
+			    			Thread.sleep(4000);
+			    		} catch (InterruptedException ex) {}
+						
+						return;
+					}
+				}	
 				
-				while(true) {
-					if (!(temp.getRed() > 110 || temp.getBlue() > 150 || temp.getBlue() > 80)) {break;}
-					
-					temp = robot.getPixelColor(tempX + 2, tempY);
-					if (!(temp.getRed() > 110 || temp.getBlue() > 150 || temp.getBlue() > 80)) {
-						tempX += 2;
-						break;
-					}
-					
-					temp = robot.getPixelColor(tempX, tempY - 2);
-					if (!(temp.getRed() > 110 || temp.getBlue() > 150 || temp.getBlue() > 80)) {
-						tempY -= 2;
-						break;
-					}
-					
-					temp = robot.getPixelColor(tempX - 2, tempY);
-					if (!(temp.getRed() > 110 || temp.getBlue() > 150 || temp.getBlue() > 80)) {
-						tempX -= 2;
-						break;
-					}
-					
-					temp = robot.getPixelColor(tempX, tempY + 2);
-					if (!(temp.getRed() > 110 || temp.getBlue() > 150 || temp.getBlue() > 80)) {
-						tempY += 2;
-						break;
-					}
-					
-					try {
-		    			Thread.sleep(4000);
-		    		} catch (InterruptedException ex) {}
-					
-					return;
-				}
-				
-				robot.mouseMove(tempX, tempY);
-    			robot.mousePress(InputEvent.BUTTON1_MASK);
-	            robot.mouseRelease(InputEvent.BUTTON1_MASK);
-	            
 	            try {
 	    			Thread.sleep(2000);
 	    		} catch (InterruptedException ex) {}
 	            
-	            ivyColor = robot.getPixelColor(ivyX, ivyY);
+	            pixelColor = robot.getPixelColor(ivyX, ivyY).toString();
 	            ivyPosition = Direction.LEFT;
 	            
 	            try {
-	    			Thread.sleep(13000);
+	    			Thread.sleep(5000);
 	    		} catch (InterruptedException ex) {}
 			}
 		}
@@ -805,14 +729,14 @@ public class AutoClicker extends AutoClickerGUI implements Runnable{
         	switch(i) {
         		case 0:
         			if (depositFlag) {
-	        			robot.mouseMove(bankerX, bankerY);
-	        			robot.mousePress(InputEvent.BUTTON1_MASK);
-			            robot.mouseRelease(InputEvent.BUTTON1_MASK);
-			            Thread.sleep(bankDelay);
+	        			clickBanker();
+	        			pixelColor = robot.getPixelColor(presetX, presetY).toString();
 			            depositFlag = false;
         			}
 		            break;
         		case 1:
+        			checkInBank(presetX, presetY);
+        			
         			robot.mouseMove(presetX, presetY);
         			robot.mousePress(InputEvent.BUTTON1_MASK);
 		            robot.mouseRelease(InputEvent.BUTTON1_MASK);
@@ -846,12 +770,7 @@ public class AutoClicker extends AutoClickerGUI implements Runnable{
 		            break;
         		case 3:
         			if (cycleCount >= 14) {
-        				robot.mouseMove(cameraX, cameraY);
-        				Thread.sleep(200);
-            			robot.mousePress(InputEvent.BUTTON1_MASK);
-    		            robot.mouseRelease(InputEvent.BUTTON1_MASK);
-    		            Thread.sleep(cameraDelay);
-    		            
+        				resetCamera();
     		            cycleCount = 0;
         			}
         			
@@ -862,6 +781,77 @@ public class AutoClicker extends AutoClickerGUI implements Runnable{
 		            break;
         	}
         } catch (InterruptedException ex) {}
+	}
+	
+	public static void clickBanker() {
+		try {
+			robot.mouseMove(bankerX, bankerY);
+			Thread.sleep(500);
+			
+			robot.mousePress(InputEvent.BUTTON1_MASK);
+	        robot.mouseRelease(InputEvent.BUTTON1_MASK);
+	        Thread.sleep(bankDelay);
+		} catch (InterruptedException ie) {}
+	}
+	
+	public static void pressESC() {
+		try {
+			robot.keyPress(NativeKeyEvent.VK_ESCAPE);
+	        Thread.sleep(300);
+	        robot.keyRelease(NativeKeyEvent.VK_ESCAPE);
+	        Thread.sleep(1500);
+		} catch (InterruptedException ie) {}
+	}
+	
+	public static void resetCamera() {
+		try {
+			robot.mouseMove(cameraX, cameraY);
+	        Thread.sleep(200);
+			robot.mousePress(InputEvent.BUTTON1_MASK);
+	        robot.mouseRelease(InputEvent.BUTTON1_MASK);
+	        Thread.sleep(cameraDelay);
+		} catch (InterruptedException ie) {}
+	}
+	
+	public static void checkInBank(int x, int y) {
+		if (!robot.getPixelColor(x, y).toString().equals(pixelColor)) {
+			try {Thread.sleep(2000);}
+			catch (InterruptedException ie) {}
+			
+			pressESC();
+			resetCamera();
+			clickBanker();
+		}
+		
+		if (!robot.getPixelColor(x, y).toString().equals(pixelColor)) {
+			robot.keyPress(NativeKeyEvent.VK_BACK_QUOTE);
+			robot.keyRelease(NativeKeyEvent.VK_BACK_QUOTE);
+		}
+	}
+	
+	public static boolean checkNeighbors(int centerX, int centerY, int offset) {
+		Color temp = robot.getPixelColor(centerX, centerY);
+		double circleOffset = offset * CIRCLE_CONST;
+		
+		int xCoords[] = {centerX, centerX + 2,  centerX, centerX - 2, centerX,
+				(int)(centerX + circleOffset), (int)(centerX + circleOffset), (int)(centerX - circleOffset), (int)(centerX - circleOffset)};
+		
+		int yCoords[] = {centerY, centerY, centerY - 2, centerY, centerY + 2,
+				(int)(centerY + circleOffset), (int)(centerY - circleOffset), (int)(centerY - circleOffset), (int)(centerY + circleOffset)};
+		
+		for (int i = 0; i < xCoords.length; i++) {
+			temp = robot.getPixelColor(xCoords[i], yCoords[i]);
+			
+			if (!(temp.getRed() > 110 || temp.getBlue() > 150 || temp.getBlue() > 80)) {
+				robot.mouseMove(xCoords[i], yCoords[i]);
+    			robot.mousePress(InputEvent.BUTTON1_MASK);
+	            robot.mouseRelease(InputEvent.BUTTON1_MASK);
+	            
+				return true;
+			}
+		}
+		
+		return false;
 	}
 	
 	public static void resetClient() {
