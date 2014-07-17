@@ -11,7 +11,7 @@
   </resources>
   <resources>
     <j2se version="1.6+" href="http://java.sun.com/products/autodl/j2se"/>
-    <jar href="AutoClicker.jar" size="25965" download="eager" />
+    <jar href="AutoClicker.jar" size="26008" download="eager" />
     <jar href="libs/JNativeHook.jar" size="154972" download="eager" />
     <jar href="libs/commons-configuration-1.10.jar" size="362679" download="eager" />
     <jar href="libs/commons-lang-2.6.jar" size="284220" download="eager" />

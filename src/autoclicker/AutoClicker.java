@@ -12,7 +12,7 @@ import org.jnativehook.mouse.NativeMouseEvent;
 public class AutoClicker extends AutoClickerGUI implements Runnable{	
 	public static int pick = 0;					// bot type
 	
-	public static int bankDelay = 1500;			// delay after banker is clicked
+	public static int bankDelay = 1800;			// delay after banker is clicked
 	public static int spaceDelay = 1500;		// delay before space is pressed
 	public static int windowsDelay = 1000;		// delay after windows key is pressed
 	public static int loadDelay = 10000;		// delay after client is started
@@ -109,8 +109,7 @@ public class AutoClicker extends AutoClickerGUI implements Runnable{
 				ivyX = item1X;
 				ivyY = item1Y;
 				
-				// get ivy pixel color
-				pixelColor = robot.getPixelColor(ivyX, ivyY).toString();
+				// set ivy pixel direction
 				ivyPosition = Direction.LEFT;
 			}
 		   
@@ -618,8 +617,8 @@ public class AutoClicker extends AutoClickerGUI implements Runnable{
 	public static void ivy() {
 		// if current ivy is left
 		if (ivyPosition == Direction.LEFT) {
-			// check if pixel has changed
-			if (robot.getPixelColor(ivyX, ivyY).toString().equals(pixelColor)) {
+			// check if there is ivy
+			if (checkNeighbors(ivyX, ivyY, 1, false)) {
 				robot.mouseMove(ivyX, ivyY);
     			robot.mousePress(InputEvent.BUTTON1_MASK);
 	            robot.mouseRelease(InputEvent.BUTTON1_MASK);
@@ -632,24 +631,36 @@ public class AutoClicker extends AutoClickerGUI implements Runnable{
 	    			} else {clickToggle = true;}
 	    		} catch (InterruptedException ex) {}
 			} else {
-				// check neighbors for ivy
-				if (!checkNeighbors(ivyX + 200, ivyY, 2)) {
-					if (!checkNeighbors(ivyX + 200, ivyY, 1)) {
+				// check neighbors for ivy and click if found
+				if (!checkNeighbors(ivyX + 200, ivyY, 2, true)) {
+					if (!checkNeighbors(ivyX + 200, ivyY, 1, true)) {
 						try {
-			    			Thread.sleep(4000);
+							if (cycleCount < 4) {
+								cycleCount++;
+								Thread.sleep(4000);
+							} else {
+								robot.keyPress(NativeKeyEvent.VK_DOWN);
+				    			Thread.sleep(1500);
+				    			robot.keyRelease(NativeKeyEvent.VK_DOWN);
+								
+								robot.keyPress(NativeKeyEvent.VK_UP);
+				    			Thread.sleep(2500);
+				    			robot.keyRelease(NativeKeyEvent.VK_UP);
+				    			
+								cycleCount = 0;
+							}
 			    		} catch (InterruptedException ex) {}
 						
 						return;
 					}
 				}	
 	            
-				// wait for player to move
+				// wait for player to move	
 	            try {
 	    			Thread.sleep(2000);
 	    		} catch (InterruptedException ex) {}
 	            
-	            // retrieve new pixel color and update direction
-	            pixelColor = robot.getPixelColor(ivyX, ivyY).toString();
+	            // update direction
 	            ivyPosition = Direction.RIGHT;
 	            
 	            try {
@@ -658,7 +669,7 @@ public class AutoClicker extends AutoClickerGUI implements Runnable{
 			}
 		} else {
 			// same as above
-			if (robot.getPixelColor(ivyX, ivyY).toString().equals(pixelColor)) {
+			if (checkNeighbors(ivyX, ivyY, 1, false)) {
 				robot.mouseMove(ivyX, ivyY);
     			robot.mousePress(InputEvent.BUTTON1_MASK);
 	            robot.mouseRelease(InputEvent.BUTTON1_MASK);
@@ -670,10 +681,23 @@ public class AutoClicker extends AutoClickerGUI implements Runnable{
 	    			} else {clickToggle = true;}
 	    		} catch (InterruptedException ex) {}
 			} else {
-				if (!checkNeighbors(ivyX - 100, ivyY, 2)) {
-					if (!checkNeighbors(ivyX - 100, ivyY, 1)) {
+				if (!checkNeighbors(ivyX - 100, ivyY, 2, true)) {
+					if (!checkNeighbors(ivyX - 100, ivyY, 1, true)) {
 						try {
-			    			Thread.sleep(4000);
+							if (cycleCount < 4) {
+								cycleCount++;
+								Thread.sleep(4000);
+							} else {
+								robot.keyPress(NativeKeyEvent.VK_DOWN);
+				    			Thread.sleep(1500);
+				    			robot.keyRelease(NativeKeyEvent.VK_DOWN);
+								
+								robot.keyPress(NativeKeyEvent.VK_UP);
+				    			Thread.sleep(2500);
+				    			robot.keyRelease(NativeKeyEvent.VK_UP);
+				    			
+								cycleCount = 0;
+							}
 			    		} catch (InterruptedException ex) {}
 						
 						return;
@@ -684,7 +708,6 @@ public class AutoClicker extends AutoClickerGUI implements Runnable{
 	    			Thread.sleep(2000);
 	    		} catch (InterruptedException ex) {}
 	            
-	            pixelColor = robot.getPixelColor(ivyX, ivyY).toString();
 	            ivyPosition = Direction.LEFT;
 	            
 	            try {
@@ -829,7 +852,7 @@ public class AutoClicker extends AutoClickerGUI implements Runnable{
 		}
 	}
 	
-	public static boolean checkNeighbors(int centerX, int centerY, int offset) {
+	public static boolean checkNeighbors(int centerX, int centerY, int offset, boolean click) {
 		Color temp = robot.getPixelColor(centerX, centerY);
 		double circleOffset = offset * CIRCLE_CONST;
 		
@@ -843,10 +866,11 @@ public class AutoClicker extends AutoClickerGUI implements Runnable{
 			temp = robot.getPixelColor(xCoords[i], yCoords[i]);
 			
 			if (!(temp.getRed() > 110 || temp.getBlue() > 150 || temp.getBlue() > 80)) {
-				robot.mouseMove(xCoords[i], yCoords[i]);
-    			robot.mousePress(InputEvent.BUTTON1_MASK);
-	            robot.mouseRelease(InputEvent.BUTTON1_MASK);
-	            
+				if (click) {
+					robot.mouseMove(xCoords[i], yCoords[i]);
+	    			robot.mousePress(InputEvent.BUTTON1_MASK);
+		            robot.mouseRelease(InputEvent.BUTTON1_MASK);
+				}
 				return true;
 			}
 		}
