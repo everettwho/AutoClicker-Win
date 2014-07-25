@@ -73,6 +73,8 @@ public class AutoClicker extends AutoClickerGUI implements Runnable{
 	private static int moveIndex = 0;			// index for camera movement
 	private static int cycleCount = 0;
 	private static int cameraDelay = 500;		// delay after clicking camera reset
+	private static int optionBoxX = 40;			// location of option box relative to pointer
+	private static int optionBoxY = 55;
 	
 	private static boolean depositFlag;			// controls banking
 	private static boolean clickToggle; 		// controls ivy clicking
@@ -178,6 +180,7 @@ public class AutoClicker extends AutoClickerGUI implements Runnable{
 	    					presetX += 40;
 	    					count = 0;
 	    					itemNumber++;
+	    					depositFlag = true;
 		    			} 
 		    			
 		    			if (itemNumber == 2 && count >= item2Amount) {
@@ -411,12 +414,12 @@ public class AutoClicker extends AutoClickerGUI implements Runnable{
         		case 0:
         			if (depositFlag) {
 	        			clickBanker();
-	        			pixelColor = robot.getPixelColor(item1X, item1Y - 100).toString();
+	        			pixelColor = robot.getPixelColor(item1X, item1Y - 50).toString();
 			            depositFlag = false;
         			}
 		            break;
         		case 1:
-        			checkInBank(item1X, item1Y - 100);
+        			checkInBank(item1X, item1Y - 50);
         			
         			robot.mouseMove(item1X, item1Y);
         			robot.mousePress(InputEvent.BUTTON3_MASK);
@@ -618,22 +621,24 @@ public class AutoClicker extends AutoClickerGUI implements Runnable{
 		// if current ivy is left
 		if (ivyPosition == Direction.LEFT) {
 			// check if there is ivy
-			if (checkNeighbors(ivyX, ivyY, 1, false)) {
-				robot.mouseMove(ivyX, ivyY);
-    			robot.mousePress(InputEvent.BUTTON1_MASK);
-	            robot.mouseRelease(InputEvent.BUTTON1_MASK);
-	            
-	            // click every 30 seconds
+			if (checkNeighbors(ivyX, ivyY, 1, false, true)) {
+	            // click every 15 seconds
 	    		try {
 	    			if (clickToggle) {
-	    				Thread.sleep(15000);
+	    				robot.mouseMove(ivyX, ivyY);
+	        			robot.mousePress(InputEvent.BUTTON1_MASK);
+	    	            robot.mouseRelease(InputEvent.BUTTON1_MASK);
+	    	            
 	    				clickToggle = false;
-	    			} else {clickToggle = true;}
+	    			} else {
+	    				Thread.sleep(15000);
+	    				clickToggle = true;
+	    			}
 	    		} catch (InterruptedException ex) {}
 			} else {
 				// check neighbors for ivy and click if found
-				if (!checkNeighbors(ivyX + 200, ivyY, 2, true)) {
-					if (!checkNeighbors(ivyX + 200, ivyY, 1, true)) {
+				if (!checkNeighbors(ivyX + 200, ivyY, 8, true, false)) {
+					if (!checkNeighbors(ivyX + 200, ivyY, 4, true, false)) {
 						try {
 							if (cycleCount < 4) {
 								cycleCount++;
@@ -669,20 +674,22 @@ public class AutoClicker extends AutoClickerGUI implements Runnable{
 			}
 		} else {
 			// same as above
-			if (checkNeighbors(ivyX, ivyY, 1, false)) {
-				robot.mouseMove(ivyX, ivyY);
-    			robot.mousePress(InputEvent.BUTTON1_MASK);
-	            robot.mouseRelease(InputEvent.BUTTON1_MASK);
-	            
+			if (checkNeighbors(ivyX, ivyY, 1, false, true)) {
 	            try {
-	    			if (clickToggle) {
-	    				Thread.sleep(15000);
+	            	if (clickToggle) {
+	    				robot.mouseMove(ivyX, ivyY);
+	        			robot.mousePress(InputEvent.BUTTON1_MASK);
+	    	            robot.mouseRelease(InputEvent.BUTTON1_MASK);
+	    	            
 	    				clickToggle = false;
-	    			} else {clickToggle = true;}
+	    			} else {
+	    				Thread.sleep(15000);
+	    				clickToggle = true;
+	    			}
 	    		} catch (InterruptedException ex) {}
 			} else {
-				if (!checkNeighbors(ivyX - 100, ivyY, 2, true)) {
-					if (!checkNeighbors(ivyX - 100, ivyY, 1, true)) {
+				if (!checkNeighbors(ivyX - 100, ivyY, 2, true, false)) {
+					if (!checkNeighbors(ivyX - 100, ivyY, 1, true, false)) {
 						try {
 							if (cycleCount < 4) {
 								cycleCount++;
@@ -843,6 +850,7 @@ public class AutoClicker extends AutoClickerGUI implements Runnable{
 			
 			pressESC();
 			resetCamera();
+			if (bankDelay < 2500) {bankDelay += 200;}
 			clickBanker();
 		}
 		
@@ -852,7 +860,7 @@ public class AutoClicker extends AutoClickerGUI implements Runnable{
 		}
 	}
 	
-	public static boolean checkNeighbors(int centerX, int centerY, int offset, boolean click) {
+	public static boolean checkNeighbors(int centerX, int centerY, int offset, boolean click, boolean ivy) {
 		Color temp = robot.getPixelColor(centerX, centerY);
 		double circleOffset = offset * CIRCLE_CONST;
 		
@@ -863,19 +871,41 @@ public class AutoClicker extends AutoClickerGUI implements Runnable{
 				(int)(centerY + circleOffset), (int)(centerY - circleOffset), (int)(centerY - circleOffset), (int)(centerY + circleOffset)};
 		
 		for (int i = 0; i < xCoords.length; i++) {
-			temp = robot.getPixelColor(xCoords[i], yCoords[i]);
-			
-			if (!(temp.getRed() > 110 || temp.getBlue() > 150 || temp.getBlue() > 80)) {
-				if (click) {
-					robot.mouseMove(xCoords[i], yCoords[i]);
-	    			robot.mousePress(InputEvent.BUTTON1_MASK);
-		            robot.mouseRelease(InputEvent.BUTTON1_MASK);
+			if (ivy) {
+				temp = robot.getPixelColor(xCoords[i], yCoords[i]);
+				
+				if (!(temp.getRed() > 110 || temp.getBlue() > 150 || temp.getBlue() > 80)) {
+					if (click) {
+						robot.mouseMove(xCoords[i], yCoords[i]);
+		    			robot.mousePress(InputEvent.BUTTON1_MASK);
+			            robot.mouseRelease(InputEvent.BUTTON1_MASK);
+					}
+					return true;
 				}
-				return true;
+			} else {
+				if (checkOptionBox(xCoords[i], yCoords[i])) {
+					if (click) {
+						robot.mousePress(InputEvent.BUTTON1_MASK);
+			            robot.mouseRelease(InputEvent.BUTTON1_MASK);
+					}
+		            return true;
+				}
 			}
 		}
 		
 		return false;
+	}
+	
+	public static boolean checkOptionBox(int coordX, int coordY) {
+		robot.mouseMove(coordX, coordY);
+		
+		try {Thread.sleep(500);}
+		catch (InterruptedException ie) {}
+		
+		Color temp = robot.getPixelColor(coordX + optionBoxX, coordY + optionBoxY);
+		
+		if (temp.getRed() > 10 || temp.getBlue() > 10 || temp.getBlue() > 10) {return false;}
+		else {return true;}
 	}
 	
 	public static void resetClient() {

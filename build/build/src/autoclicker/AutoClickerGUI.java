@@ -23,6 +23,8 @@ import javafx.scene.text.Text;
 import javafx.stage.Stage;
 import javafx.stage.WindowEvent;
 
+
+import org.jnativehook.GlobalScreen;
 //import org.jnativehook.GlobalScreen;
 //import org.jnativehook.NativeHookException;
 import org.jnativehook.keyboard.NativeKeyEvent;
@@ -83,7 +85,44 @@ public class AutoClickerGUI extends Application implements NativeKeyListener, Na
 //        // launch GUI
 //		launch(AutoClickerGUI.class, args);
 //	}
+
+	@Override
+	public void start(Stage primaryStage) {
+		initFields();
+		
+		GridPane grid = new GridPane();
+		grid.setAlignment(Pos.CENTER);
+		grid.setHgap(10);
+		grid.setVgap(10);
+		grid.setPadding(new Insets(25, 25, 25, 25));
+		
+		// add gridlines for formatting 
+//		grid.setGridLinesVisible(true);
+		
+		Scene scene = new Scene(grid, sceneWidth, sceneHeight);
+		
+		Text scenetitle = new Text("AutoClicker 2.1");
+		scenetitle.setFont(Font.font("Tahoma", FontWeight.NORMAL, 24));
+		grid.add(scenetitle, 0, 0, 2, 1);
+		
+		// initialize all GUI components and add to gridpane
+		initLeftVBox(grid);
+		initRightVBox(grid);
+		initButtonFunctions();
+        
+        // set up primary stage and display
+		primaryStage.setTitle("AutoClicker");
+		primaryStage.setScene(scene);
+		primaryStage.setOnCloseRequest(new EventHandler<WindowEvent>() {
+			public void handle(WindowEvent event) {
+				GlobalScreen.unregisterNativeHook();
+				System.exit(0);
+			}
+		});
+		primaryStage.show();
+	}
 	
+	// initialize all field names and default values
 	public void initFields() {
 		startButton = new Button("Start");     
 		bankButton = new Button("Banker");     
@@ -105,7 +144,7 @@ public class AutoClickerGUI extends Application implements NativeKeyListener, Na
 		
 		resetToggle = new CheckBox("Reset Connection");
 		
-		 cb = new ChoiceBox<String>(FXCollections.observableArrayList(
+		cb = new ChoiceBox<String>(FXCollections.observableArrayList(
 					"Chocolate Powder ",
 					"Headless Arrows ",
 					"Alchemy ",
@@ -120,42 +159,6 @@ public class AutoClickerGUI extends Application implements NativeKeyListener, Na
 					"Test Reset")
 					);
 	}
-
-	@Override
-	public void start(Stage primaryStage) {
-		initFields();
-		
-		GridPane grid = new GridPane();
-		grid.setAlignment(Pos.CENTER);
-		grid.setHgap(10);
-		grid.setVgap(10);
-		grid.setPadding(new Insets(25, 25, 25, 25));
-		
-//		grid.setGridLinesVisible(true);
-		
-		Scene scene = new Scene(grid, sceneWidth, sceneHeight);
-		
-		Text scenetitle = new Text("AutoClicker 2.1");
-		scenetitle.setFont(Font.font("Tahoma", FontWeight.NORMAL, 24));
-		grid.add(scenetitle, 0, 0, 2, 1);
-		
-		// initialize all GUI components and add to gridpane
-		initLeftVBox(grid);
-		initRightVBox(grid);
-		initButtonFunctions();
-        
-        // set up primary stage and display
-		primaryStage.setTitle("AutoClicker");
-		primaryStage.setScene(scene);
-		primaryStage.setOnCloseRequest(new EventHandler<WindowEvent>() {
-			public void handle(WindowEvent event) {
-				System.exit(0);
-			}
-		});
-		primaryStage.show();
-	}
-	
-	
 	
 	// displays requirements based on user choice
 	public static void displayRequirements() {
