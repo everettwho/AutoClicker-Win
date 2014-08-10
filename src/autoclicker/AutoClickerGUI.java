@@ -145,17 +145,18 @@ public class AutoClickerGUI extends Application implements NativeKeyListener, Na
 		resetToggle = new CheckBox("Reset Connection");
 		
 		cb = new ChoiceBox<String>(FXCollections.observableArrayList(
-					"Chocolate Powder ",
-					"Headless Arrows ",
-					"Alchemy ",
-					"Arrow Shafts ",
-					"Clean Herbs ",
+					"Chocolate Powder",
+					"Headless Arrows",
+					"Alchemy",
+					"Arrow Shafts",
+					"Clean Herbs",
 					"Potions (1)",
 					"Potions (2)",
 					"Shieldbows",
 					"Ivy",
-					"Enchant Bolts ",
-					"Superheat Item", 
+					"Enchant Bolts",
+					"Superheat Item",
+				    "Barbarian Fishing",
 					"Test Reset")
 					);
 	}
@@ -223,6 +224,9 @@ public class AutoClickerGUI extends Application implements NativeKeyListener, Na
 									"Superheat (I1) \n" +
 									"Deposit (P)    \n" +
 									"Camera (P)     ");
+				case 11:
+					message.setText("Fish (I1)      \n" +
+									"BL Inv (I2)    \n\n\n");
 			}
 		}
 	}

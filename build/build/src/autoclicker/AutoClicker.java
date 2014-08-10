@@ -31,7 +31,7 @@ public class AutoClicker extends AutoClickerGUI implements Runnable{
 	public static boolean setPreset = false;
 	public static boolean setCamera = false;
 	
-	public static int count = 0;				// counter for iterations
+	public static int count = 0;				// multipurpose counter for iterations
 	public static int itemNumber = 1;			// tracks item number
 
 	public static int bankerX = 0;
@@ -71,7 +71,7 @@ public class AutoClicker extends AutoClickerGUI implements Runnable{
 	private static int ivyY;
 	
 	private static int moveIndex = 0;			// index for camera movement
-	private static int cycleCount = 0;
+	private static int cycleCount = 0;			// count between random movement cycles
 	private static int cameraDelay = 500;		// delay after clicking camera reset
 	private static int optionBoxX = 40;			// location of option box relative to pointer
 	private static int optionBoxY = 55;
@@ -226,6 +226,10 @@ public class AutoClicker extends AutoClickerGUI implements Runnable{
 		    			}
 		    			break;
 		    		case 11:
+		    			fishing();
+		    			if (!runFlag) {return;}
+		    			break;
+		    		case 12:
 		    			int save = gameDelay;
 		    			gameDelay = 2000;
 		    			
@@ -241,7 +245,7 @@ public class AutoClicker extends AutoClickerGUI implements Runnable{
 		} catch (AWTException e) {}	
 	}
 	
-	public static void chocolatePowder(int i) {
+	private static void chocolatePowder(int i) {
 		try {
         	switch(i) {
         		case 0:
@@ -307,7 +311,7 @@ public class AutoClicker extends AutoClickerGUI implements Runnable{
         } catch (InterruptedException ex) {}
 	}
 	
-	public static void headlessArrows(int i) {
+	private static void headlessArrows(int i) {
 		try {
         	switch(i) {
         		case 0:
@@ -327,10 +331,7 @@ public class AutoClicker extends AutoClickerGUI implements Runnable{
 		            robot.keyRelease(NativeKeyEvent.VK_SPACE);
 		            Thread.sleep(1000);
 		            
-		            moveIndex = rand.nextInt(4);
-		            robot.keyPress(move[moveIndex]);
-		            Thread.sleep((long) (Math.random() + 1) * 900);
-		            robot.keyRelease(move[moveIndex]);
+		            randomMoveCamera(1, 900);
 		            
 		            Thread.sleep(10000);
 		            break;
@@ -338,7 +339,7 @@ public class AutoClicker extends AutoClickerGUI implements Runnable{
 		} catch (InterruptedException ex) {}
 	}
 	
-	public static void alchemy(int i) {
+	private static void alchemy(int i) {
 		 try {
         	switch(i) {
         		case 0:
@@ -353,10 +354,8 @@ public class AutoClicker extends AutoClickerGUI implements Runnable{
 		            robot.mouseRelease(InputEvent.BUTTON1_MASK);
 		            
 		            if (cycleCount >= 21) {
-			            moveIndex = rand.nextInt(4);
-			            robot.keyPress(move[moveIndex]);
-			            Thread.sleep((long) (Math.random() + 1.5) * 1000);
-			            robot.keyRelease(move[moveIndex]);
+		            	randomMoveCamera(1.5, 1000);
+		            	
 			            cycleCount = 0;
 		            } else {
 		            	Thread.sleep((long) (Math.random() + 1.5) * 1000);
@@ -369,7 +368,7 @@ public class AutoClicker extends AutoClickerGUI implements Runnable{
  		} catch (InterruptedException ex) {}
 	}
 	
-	public static void arrowShafts(int i) {
+	private static void arrowShafts(int i) {
 		try {
         	switch(i) {
         		case 0:
@@ -408,7 +407,7 @@ public class AutoClicker extends AutoClickerGUI implements Runnable{
         } catch (InterruptedException ex) {}
 	}
 	
-	public static void cleanHerbs(int i) {
+	private static void cleanHerbs(int i) {
 		try {
         	switch(i) {
         		case 0:
@@ -446,10 +445,7 @@ public class AutoClicker extends AutoClickerGUI implements Runnable{
 		            robot.keyRelease(NativeKeyEvent.VK_SPACE);
 		            
 		            if (cycleCount >= 19) {
-			            moveIndex = rand.nextInt(4);
-			            robot.keyPress(move[moveIndex]);
-			            Thread.sleep((long) (Math.random() + 1.2) * 1000);
-			            robot.keyRelease(move[moveIndex]);
+		            	randomMoveCamera(1.2, 1000);
 		            }
 		            cycleCount++;
 		            
@@ -482,7 +478,7 @@ public class AutoClicker extends AutoClickerGUI implements Runnable{
         } catch (InterruptedException ex) {}
 	}
 	
-	public static void potions(int i) {
+	private static void potions(int i) {
 		try {
         	switch(i) {
         		case 0:
@@ -519,10 +515,7 @@ public class AutoClicker extends AutoClickerGUI implements Runnable{
 		            robot.keyRelease(NativeKeyEvent.VK_SPACE);
 		            
 		            if (cycleCount >= 13) {
-			            moveIndex = rand.nextInt(4);
-			            robot.keyPress(move[moveIndex]);
-			            Thread.sleep((long) (Math.random() + 1.5) * 1000);
-			            robot.keyRelease(move[moveIndex]);
+		            	randomMoveCamera(1.5, 1000);
 		            }
 		            cycleCount++;
 		            
@@ -543,7 +536,7 @@ public class AutoClicker extends AutoClickerGUI implements Runnable{
         } catch (InterruptedException ex) {}
 	}
 	
-	public static void shieldbows(int i) {
+	private static void shieldbows(int i) {
 		try {
         	switch(i) {
         		case 0:
@@ -581,10 +574,7 @@ public class AutoClicker extends AutoClickerGUI implements Runnable{
 		            robot.keyRelease(NativeKeyEvent.VK_SPACE);
 		            
 		            if (cycleCount >= 9) {
-			            moveIndex = rand.nextInt(4);
-			            robot.keyPress(move[moveIndex]);
-			            Thread.sleep((long) (Math.random() + 1.5) * 1000);
-			            robot.keyRelease(move[moveIndex]);
+		            	randomMoveCamera(1.5, 1000);
 		            }
 		            cycleCount++;
 		            
@@ -617,11 +607,12 @@ public class AutoClicker extends AutoClickerGUI implements Runnable{
         } catch (InterruptedException ex) {}
 	}
 	
-	public static void ivy() {
+	private static void ivy() {
+
 		// if current ivy is left
 		if (ivyPosition == Direction.LEFT) {
 			// check if there is ivy
-			if (checkNeighbors(ivyX, ivyY, 1, false, true)) {
+			if (checkNeighbors(ivyX, ivyY, 1, false)) {
 	            // click every 15 seconds
 	    		try {
 	    			if (clickToggle) {
@@ -631,14 +622,16 @@ public class AutoClicker extends AutoClickerGUI implements Runnable{
 	    	            
 	    				clickToggle = false;
 	    			} else {
+	    				if (!runFlag) {return;}
+	    				
 	    				Thread.sleep(15000);
 	    				clickToggle = true;
 	    			}
 	    		} catch (InterruptedException ex) {}
 			} else {
 				// check neighbors for ivy and click if found
-				if (!checkNeighbors(ivyX + 200, ivyY, 8, true, false)) {
-					if (!checkNeighbors(ivyX + 200, ivyY, 4, true, false)) {
+				if (!checkNeighbors(ivyX + 200, ivyY, 8, true)) {
+					if (!checkNeighbors(ivyX + 200, ivyY, 4, true)) {
 						try {
 							if (cycleCount < 4) {
 								cycleCount++;
@@ -674,7 +667,7 @@ public class AutoClicker extends AutoClickerGUI implements Runnable{
 			}
 		} else {
 			// same as above
-			if (checkNeighbors(ivyX, ivyY, 1, false, true)) {
+			if (checkNeighbors(ivyX, ivyY, 1, false)) {
 	            try {
 	            	if (clickToggle) {
 	    				robot.mouseMove(ivyX, ivyY);
@@ -683,13 +676,15 @@ public class AutoClicker extends AutoClickerGUI implements Runnable{
 	    	            
 	    				clickToggle = false;
 	    			} else {
+	    				if (!runFlag) {return;}
+	    				
 	    				Thread.sleep(15000);
 	    				clickToggle = true;
 	    			}
 	    		} catch (InterruptedException ex) {}
 			} else {
-				if (!checkNeighbors(ivyX - 100, ivyY, 2, true, false)) {
-					if (!checkNeighbors(ivyX - 100, ivyY, 1, true, false)) {
+				if (!checkNeighbors(ivyX - 100, ivyY, 2, true)) {
+					if (!checkNeighbors(ivyX - 100, ivyY, 1, true)) {
 						try {
 							if (cycleCount < 4) {
 								cycleCount++;
@@ -724,7 +719,7 @@ public class AutoClicker extends AutoClickerGUI implements Runnable{
 		}
 	}
 	
-	public static void enchantBolts(int i) {
+	private static void enchantBolts(int i) {
 		try {
         	switch(i) {
         		case 0:
@@ -738,10 +733,8 @@ public class AutoClicker extends AutoClickerGUI implements Runnable{
 		            robot.keyRelease(NativeKeyEvent.VK_SPACE);
 		            
 		            if (cycleCount >= 2) {
-			            moveIndex = rand.nextInt(4);
-			            robot.keyPress(move[moveIndex]);
-			            Thread.sleep((long) (Math.random() + 1.5) * 1000);
-			            robot.keyRelease(move[moveIndex]);
+		            	randomMoveCamera(1.5, 1000);
+		            	
 			            cycleCount = 0;
 		            } else {
 		            	Thread.sleep((long) (Math.random() + 1.5) * 1000);
@@ -754,7 +747,7 @@ public class AutoClicker extends AutoClickerGUI implements Runnable{
  		} catch (InterruptedException ex) {}
 	}
 	
-	public static void superheat(int i) {
+	private static void superheat(int i) {
 		try {
         	switch(i) {
         		case 0:
@@ -774,10 +767,7 @@ public class AutoClicker extends AutoClickerGUI implements Runnable{
 		            break;
         		case 2:
 		            if (cycleCount >= 13) {
-			            moveIndex = rand.nextInt(4);
-			            robot.keyPress(move[moveIndex]);
-			            Thread.sleep((long) (Math.random() + 1.2) * 1000);
-			            robot.keyRelease(move[moveIndex]);
+		            	randomMoveCamera(1.2, 1000);
 		            }
 		            cycleCount++;
 		            
@@ -813,7 +803,91 @@ public class AutoClicker extends AutoClickerGUI implements Runnable{
         } catch (InterruptedException ex) {}
 	}
 	
-	public static void clickBanker() {
+	private static void fishing() {
+		int searchOffsetY = 0;
+		
+		try {
+			if (checkOptionBox(item1X, item1Y, optionBoxX, optionBoxY)) {
+				if (clickToggle) {
+    				robot.mouseMove(item1X, item1Y);
+        			robot.mousePress(InputEvent.BUTTON1_MASK);
+    	            robot.mouseRelease(InputEvent.BUTTON1_MASK);
+    	            Thread.sleep(500);
+    	            
+    				clickToggle = false;
+    			} else {
+    				randomMoveCamera(1, 1000);
+    				Thread.sleep(500);
+		            resetCamera();
+    				clickToggle = true;
+    			}
+				
+				if (checkOptionBox(item2X, item2Y, 0, 30)) {
+					dropFish(10);
+					clickToggle = true;
+					
+					return;
+				} else {
+					if (clickToggle) {
+						dropFish(3);
+					} 
+				}
+				
+				if (!runFlag) {return;}
+			} else {				
+				if (count > 4) {
+					robot.keyPress(NativeKeyEvent.VK_DOWN);
+					Thread.sleep(1000);
+			        robot.keyRelease(NativeKeyEvent.VK_DOWN);
+			        
+			        resetCamera();
+			        count = 0;
+				}
+				
+				while (searchOffsetY < 160) {
+					searchOffsetY += 40;
+					
+					if (checkNeighbors(item1X, item1Y + searchOffsetY, 5, true) 
+							|| checkNeighbors(item1X, item1Y - searchOffsetY, 5, true)) {
+						clickToggle = true;
+						count = 0;
+						
+						resetCamera();
+						Thread.sleep(2000);
+						return;
+					}
+					
+					if (!runFlag) {return;}
+				}
+				count++;
+			}
+			Thread.sleep(15000);
+		} catch (InterruptedException ie) {}
+	}
+	
+	private static void dropFish (int dropCount) {
+		try {
+			Thread.sleep(500);
+			robot.keyPress(NativeKeyEvent.VK_SPACE);
+	        robot.keyRelease(NativeKeyEvent.VK_SPACE);
+	        Thread.sleep(500);
+	        
+			for (int i = 0; i < dropCount; i++) {		        
+				robot.keyPress(NativeKeyEvent.VK_1);
+				Thread.sleep(100);
+		        robot.keyRelease(NativeKeyEvent.VK_1);
+		        robot.keyPress(NativeKeyEvent.VK_2);
+		        Thread.sleep(100);
+		        robot.keyRelease(NativeKeyEvent.VK_2);
+		        robot.keyPress(NativeKeyEvent.VK_3);
+		        Thread.sleep(100);
+		        robot.keyRelease(NativeKeyEvent.VK_3);
+		        Thread.sleep(100);
+			}
+		} catch (InterruptedException ie) {}
+	}
+	
+	private static void clickBanker() {
 		try {
 			robot.mouseMove(bankerX, bankerY);
 			Thread.sleep(500);
@@ -824,7 +898,7 @@ public class AutoClicker extends AutoClickerGUI implements Runnable{
 		} catch (InterruptedException ie) {}
 	}
 	
-	public static void pressESC() {
+	private static void pressESC() {
 		try {
 			robot.keyPress(NativeKeyEvent.VK_ESCAPE);
 	        Thread.sleep(300);
@@ -833,7 +907,7 @@ public class AutoClicker extends AutoClickerGUI implements Runnable{
 		} catch (InterruptedException ie) {}
 	}
 	
-	public static void resetCamera() {
+	private static void resetCamera() {
 		try {
 			robot.mouseMove(cameraX, cameraY);
 	        Thread.sleep(200);
@@ -843,7 +917,17 @@ public class AutoClicker extends AutoClickerGUI implements Runnable{
 		} catch (InterruptedException ie) {}
 	}
 	
-	public static void checkInBank(int x, int y) {
+	private static void randomMoveCamera(double timeOffset, int timeMultiplier) {
+		moveIndex = rand.nextInt(4);
+        robot.keyPress(move[moveIndex]);
+        
+        try {Thread.sleep((long) (Math.random() + timeOffset) * timeMultiplier);}
+        catch (InterruptedException ie) {}
+        
+        robot.keyRelease(move[moveIndex]);
+	}
+	
+	private static void checkInBank(int x, int y) {
 		if (!robot.getPixelColor(x, y).toString().equals(pixelColor)) {
 			try {Thread.sleep(2000);}
 			catch (InterruptedException ie) {}
@@ -860,8 +944,7 @@ public class AutoClicker extends AutoClickerGUI implements Runnable{
 		}
 	}
 	
-	public static boolean checkNeighbors(int centerX, int centerY, int offset, boolean click, boolean ivy) {
-		Color temp = robot.getPixelColor(centerX, centerY);
+	private static boolean checkNeighbors(int centerX, int centerY, int offset, boolean click) {
 		double circleOffset = offset * CIRCLE_CONST;
 		
 		int xCoords[] = {centerX, centerX + 2,  centerX, centerX - 2, centerX,
@@ -871,44 +954,31 @@ public class AutoClicker extends AutoClickerGUI implements Runnable{
 				(int)(centerY + circleOffset), (int)(centerY - circleOffset), (int)(centerY - circleOffset), (int)(centerY + circleOffset)};
 		
 		for (int i = 0; i < xCoords.length; i++) {
-			if (ivy) {
-				temp = robot.getPixelColor(xCoords[i], yCoords[i]);
-				
-				if (!(temp.getRed() > 110 || temp.getBlue() > 150 || temp.getBlue() > 80)) {
-					if (click) {
-						robot.mouseMove(xCoords[i], yCoords[i]);
-		    			robot.mousePress(InputEvent.BUTTON1_MASK);
-			            robot.mouseRelease(InputEvent.BUTTON1_MASK);
-					}
-					return true;
+			if (checkOptionBox(xCoords[i], yCoords[i], optionBoxX, optionBoxY)) {
+				if (click) {
+					robot.mousePress(InputEvent.BUTTON1_MASK);
+		            robot.mouseRelease(InputEvent.BUTTON1_MASK);
 				}
-			} else {
-				if (checkOptionBox(xCoords[i], yCoords[i])) {
-					if (click) {
-						robot.mousePress(InputEvent.BUTTON1_MASK);
-			            robot.mouseRelease(InputEvent.BUTTON1_MASK);
-					}
-		            return true;
-				}
+	            return true;
 			}
 		}
 		
 		return false;
 	}
 	
-	public static boolean checkOptionBox(int coordX, int coordY) {
+	private static boolean checkOptionBox(int coordX, int coordY, int offsetX, int offsetY) {
 		robot.mouseMove(coordX, coordY);
 		
 		try {Thread.sleep(500);}
 		catch (InterruptedException ie) {}
 		
-		Color temp = robot.getPixelColor(coordX + optionBoxX, coordY + optionBoxY);
+		Color temp = robot.getPixelColor(coordX + offsetX, coordY + offsetY);
 		
-		if (temp.getRed() > 10 || temp.getBlue() > 10 || temp.getBlue() > 10) {return false;}
+		if (temp.getRed() > 2 || temp.getBlue() > 2 || temp.getBlue() > 2) {return false;}
 		else {return true;}
 	}
 	
-	public static void resetClient() {
+	private static void resetClient() {
 		try {
 			for (int i = 0; i < 7; i++) {
 				if (!runFlag) {return;}
@@ -964,13 +1034,13 @@ public class AutoClicker extends AutoClickerGUI implements Runnable{
  		} catch (InterruptedException ex) {}
 	}
 	
-	public static void typeString(String str) {		
+	private static void typeString(String str) {		
 		for (int i = 0; i < str.length(); i++) {
 			typeChar(str.charAt(i));
 		}
 	}
 	
-	public static void typeChar(char character) {
+	private static void typeChar(char character) {
 		switch (character) {
 	        case 'a': pressKey(NativeKeyEvent.VK_A, false); break;
 	        case 'b': pressKey(NativeKeyEvent.VK_B, false); break;
@@ -1072,7 +1142,7 @@ public class AutoClicker extends AutoClickerGUI implements Runnable{
 		}
 	}
 	
-	public static void pressKey(int code, boolean shift) {
+	private static void pressKey(int code, boolean shift) {
 		if (shift) {robot.keyPress(NativeKeyEvent.VK_SHIFT);}
 		
 		robot.keyPress(code);
