@@ -1,4 +1,4 @@
-package autoclicker;
+package com.autoclicker;
 
 import javafx.application.Application;
 import javafx.application.Platform;
@@ -23,10 +23,7 @@ import javafx.scene.text.Text;
 import javafx.stage.Stage;
 import javafx.stage.WindowEvent;
 
-
 import org.jnativehook.GlobalScreen;
-//import org.jnativehook.GlobalScreen;
-//import org.jnativehook.NativeHookException;
 import org.jnativehook.keyboard.NativeKeyEvent;
 import org.jnativehook.keyboard.NativeKeyListener;
 import org.jnativehook.mouse.NativeMouseEvent;
@@ -62,29 +59,6 @@ public class AutoClickerGUI extends Application implements NativeKeyListener, Na
 	public static ChoiceBox<String> cb;
 	
 	public enum SetButton {BANKER, ITEM1, ITEM2, DEPOSIT, INV, PRESET, CAMERA}
-	
-//	public static void main(String[] args) {
-//		// register hook to mouse events
-//		try {
-//            GlobalScreen.registerNativeHook();
-//	    }
-//	    catch (NativeHookException ex) {
-//	            System.err.println("There was a problem registering the native hook");
-//	            System.err.println(ex.getMessage());
-//	
-//	            System.exit(1);
-//	    }
-//		
-//		if (Utilities.getProperties() == 0) {propertiesFlag = true;}
-//		
-//	    // construct the example object and initialize native hooks
-//	    GlobalScreen.getInstance().addNativeKeyListener(new AutoClicker());
-//	    GlobalScreen.getInstance().addNativeMouseListener(new AutoClicker());
-//        GlobalScreen.getInstance().addNativeMouseMotionListener(new AutoClicker());
-//        
-//        // launch GUI
-//		launch(AutoClickerGUI.class, args);
-//	}
 
 	@Override
 	public void start(Stage primaryStage) {
@@ -145,10 +119,8 @@ public class AutoClickerGUI extends Application implements NativeKeyListener, Na
 		resetToggle = new CheckBox("Reset Connection");
 		
 		cb = new ChoiceBox<String>(FXCollections.observableArrayList(
-					"Chocolate Powder",
 					"Headless Arrows",
 					"Alchemy",
-					"Arrow Shafts",
 					"Clean Herbs",
 					"Potions (1)",
 					"Potions (2)",
@@ -169,62 +141,51 @@ public class AutoClickerGUI extends Application implements NativeKeyListener, Na
 			paramFlag = 1;
 			
 			switch (AutoClicker.pick) {
-				case 0: 
-					message.setText("Banker        \n" +
-									"Chocolate (I1)\n" +
-									"Deposit (P)   \n" +
-									"Inventory (P) \n");
-					break;
-				case 1:
+				case 0:
 					message.setText("Inventory (P) \n\n\n\n");
 					break;
-				case 2:
+				case 1:
 					message.setText("Alchemy (I1)  \n\n\n\n");
 					break;
-				case 3: 
-					message.setText("Banker			\n" +
-									"Logs (I1)		\n" +
-									"Inventory (P)  \n\n");
-					break;
-				case 4:
+				case 2:
 					message.setText("Banker       	\n" +
 									"Herb (I1)    	\n" +
 									"Deposit (P)    \n" +
 									"Inventory (P)  \n" +
 									"Camera (P)     ");
 					break;
-				case 5:
+				case 3:
 					message.setText("Banker       	\n" +
 									"Preset	      	\n" +
 									"Inventory (P)  \n" +
 									"Camera (P)     \n");
 					break;
-				case 6:
+				case 4:
 					message.setText("Banker       	\n" +
 									"Preset 1	  	\n" +
 									"Inventory (P)  \n" +
 									"Camera (P)     \n");
 					break;
-				case 7: 
+				case 5: 
 					message.setText("Banker			\n" +
 									"Logs (I1)		\n" +
 									"Deposit (P)    \n" +
 									"Inventory (P)  \n" +
 									"Camera (P)     ");
 					break;
-				case 8: 
+				case 6: 
 					message.setText("Ivy (I1)		\n\n\n\n");
 					break;
-				case 9:
+				case 7:
 					message.setText("Enchant (I1)   \n\n\n\n");
 					break;
-				case 10:
+				case 8:
 					message.setText("Banker         \n" +
 									"Preset         \n" +
 									"Superheat (I1) \n" +
 									"Deposit (P)    \n" +
 									"Camera (P)     ");
-				case 11:
+				case 9:
 					message.setText("Fish (I1)      \n" +
 									"BL Inv (I2)    \n\n\n");
 			}
@@ -306,13 +267,17 @@ public class AutoClickerGUI extends Application implements NativeKeyListener, Na
 		
 		paramFlag = 2;
 		
-		// end timer thread
+		// send interrupt signal to all threads
 		AutoClicker.timer.interrupt();
+		bot.interrupt();
 		
 		// wait for running thread to end
 		if (startFlag == true) {
-			try {bot.join();}
-			catch (InterruptedException ie) {}
+			if (bot.isAlive()) {
+				try {
+					bot.join();
+				} catch (InterruptedException ie) {}
+			}
 			
 			startFlag = false;
 		}

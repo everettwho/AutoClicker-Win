@@ -74,7 +74,7 @@
 			</fileset>
 		</copy>
 	
-		<javac includeantruntime="false" source="1.5" target="1.5" srcdir="build/src" destdir="build/classes" encoding="Cp1252">
+		<javac includeantruntime="false" source="1.7" target="1.7" srcdir="build/src" destdir="build/classes" encoding="Cp1252">
 			<classpath>
 				<fileset dir="build/libs">
 					<include name="*"/>
@@ -112,7 +112,7 @@
 		
 		<fx:application id="fxApplication"
 			name="AutoClicker"
-			mainClass="autoclicker.Launcher"
+			mainClass="com.autoclicker.Launcher"
 		/>
 	
 		<mkdir dir="build/classes/META-INF" />
@@ -137,6 +137,7 @@
 		<mkdir dir="deploy" />
 		<!-- Need to use ${basedir} because somehow the ant task is calculating the directory differently -->
 		<fx:deploy
+			verbose="true" 
 			embedJNLP="false"
 			extension="false"
 			includeDT="false"

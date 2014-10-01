@@ -1,13 +1,18 @@
-package autoclicker;
+package com.autoclicker;
 
 import java.awt.AWTException;
 import java.awt.Color;
 import java.awt.Robot;
 import java.awt.event.InputEvent;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Random;
 
 import org.jnativehook.keyboard.NativeKeyEvent;
 import org.jnativehook.mouse.NativeMouseEvent;
+
+import com.robot.command.RobotController;
+import com.robot.command.CommandKey;
 
 public class AutoClicker extends AutoClickerGUI implements Runnable{	
 	public static int pick = 0;					// bot type
@@ -82,8 +87,9 @@ public class AutoClicker extends AutoClickerGUI implements Runnable{
 	private static double CIRCLE_CONST = 0.7071067;
 	
 	private static Robot robot;
-	private static String pixelColor;
+	private static RobotController controller;
 	private static Random rand = new Random();
+	private static List<Integer> params = new ArrayList<Integer>();
 	
 	private enum Direction {LEFT, RIGHT, UP, DOWN}
 	private static Direction ivyPosition = Direction.LEFT;
@@ -93,26 +99,32 @@ public class AutoClicker extends AutoClickerGUI implements Runnable{
 	public void run() {
 		try {
 			robot = new Robot();
+			controller = new RobotController();
 			depositFlag = true;
 			clickToggle = true;
 			count = 0;
 			cycleCount = 0;
 			
+			// clear parameter list
+			params.clear();
+			
 			// start new timer thread
 			timer = new Thread(new Timer());
 			timer.start();
-
-			if (pick == 6) {
-				item1Amount /= 14;
-				item2Amount /= 14;
-			}
 			
-			if (pick == 8) {
-				ivyX = item1X;
-				ivyY = item1Y;
-				
-				// set ivy pixel direction
-				ivyPosition = Direction.LEFT;
+			// initialize variables
+			switch(pick) {
+				case 4:
+					item1Amount /= 14;
+					item2Amount /= 14;
+					break;
+				case 6:
+					ivyX = item1X;
+					ivyY = item1Y;
+					
+					// set ivy pixel direction
+					ivyPosition = Direction.LEFT;
+					break;
 			}
 		   
 		    while (true) {
@@ -123,11 +135,10 @@ public class AutoClicker extends AutoClickerGUI implements Runnable{
 			    		resetCamera();
 			    		
 			    		if (pick == 8) {
-			    			robot.keyPress(NativeKeyEvent.VK_UP);
-			    			Thread.sleep(2000);
-			    			robot.keyRelease(NativeKeyEvent.VK_UP);
+			    			params.add(0, 2000);
+			    			controller.executeSpecial(CommandKey.PRESS_UP, params, false);
 			    		}
-			        } catch (InterruptedException ie) {}
+			        } catch (InterruptedException ie) {return;}
 		            
 		            
 		            // restart timer thread
@@ -140,96 +151,81 @@ public class AutoClicker extends AutoClickerGUI implements Runnable{
 		    	
 		    	switch (pick) {
 		    		case 0:
-				    	for (int i = 0; i < 9; i++) {
-				    		chocolatePowder(i);
-				    		if (!runFlag) {return;}
-				    	}
-				    	break;
+		    			headlessArrows();
+		    			if (!runFlag) {
+		    				return;
+		    			}
+			    		break;
 		    		case 1:
-			    		for (int i = 0; i < 3; i++) {
-			    			headlessArrows(i);
-			    			if (!runFlag) {return;}
-			    		} 
+		    			alchemy();
+		    			if (!runFlag) {
+		    				return;
+		    			}
 			    		break;
 		    		case 2:
-			    		for (int i = 0; i < 2; i++) {
-			    			alchemy(i);
-			    			if (!runFlag) {return;}
+			    		cleanHerbs();
+			    		if (!runFlag) {
+			    			return;
 			    		}
-			    		break;
-		    		case 3: 
-		    			for (int i = 0; i < 5; i++) {
-		    				arrowShafts(i);
-		    				if (!runFlag) {return;}
-		    			}
+				    	break;
+		    		case 3:
+	    				potions();
+	    				if (!runFlag) {
+	    					return;
+	    				}
 		    			break;
 		    		case 4:
-				    	for (int i = 0; i < 8; i++) {
-				    		cleanHerbs(i);
-				    		if (!runFlag) {return;}
-				    	}
-				    	break;
-		    		case 5:
-		    			for (int i = 0; i < 6; i++) {
-		    				potions(i);
-		    				if (!runFlag) {return;}
-		    			}
-		    			break;
-		    		case 6:
 		    			if (itemNumber == 1 && count >= item1Amount) {
 	    					presetX += 40;
 	    					count = 0;
 	    					itemNumber++;
-	    					depositFlag = true;
 		    			} 
 		    			
 		    			if (itemNumber == 2 && count >= item2Amount) {
 	    					presetX -= 40;
-	    					robot.keyPress(NativeKeyEvent.VK_ESCAPE);
-	    		            try {Thread.sleep(300);}
-	    		            catch (InterruptedException ie) {}
-	    		            robot.keyRelease(NativeKeyEvent.VK_ESCAPE);
+	    					
+	    					try {
+	    						controller.executeSpecial(CommandKey.PRESS_ESC, params, false);
+	    					} catch (InterruptedException ie) {
+	    						return;
+	    					}
 	    		            
-		    				robot.keyPress(NativeKeyEvent.VK_BACK_QUOTE);
-		    				robot.keyRelease(NativeKeyEvent.VK_BACK_QUOTE);
-		    				
+		    				controller.executeTypeString("`");
 		    				return;
 				        }
 
-		    			for (int i = 0; i < 6; i++) {
-		    				potions(i);
-		    				if (!runFlag) {return;}
-		    			}
+	    				potions();
+	    				if (!runFlag) {return;}
 		    			
 		    			count++;
 		    			break;
-		    		case 7:
-		    			for (int i = 0; i < 8; i++) {
-				    		shieldbows(i);
-				    		if (!runFlag) {return;}
-				    	}
+		    		case 5:
+			    		shieldbows();
+			    		if (!runFlag) {
+			    			return;
+			    		}
 				    	break;
-		    		case 8:
+		    		case 6:
 		    			ivy();
 		    			if (!runFlag) {return;}
 		    			break;
-		    		case 9:
+		    		case 7:
 		    			for (int i = 0; i < 2; i++) {
 		    				enchantBolts(i);
 		    				if (!runFlag) {return;}
 		    			}
 		    			break;
-		    		case 10:
+		    		case 8:
 		    			for (int i = 0; i < 4; i++) {
 		    				superheat(i);
 		    				if(!runFlag) {return;}
 		    			}
 		    			break;
-		    		case 11:
+		    		case 9:
 		    			fishing();
 		    			if (!runFlag) {return;}
 		    			break;
-		    		case 12:
+		    		case 10:
 		    			int save = gameDelay;
 		    			gameDelay = 2000;
 		    			
@@ -245,366 +241,197 @@ public class AutoClicker extends AutoClickerGUI implements Runnable{
 		} catch (AWTException e) {}	
 	}
 	
-	private static void chocolatePowder(int i) {
+	private static void headlessArrows() {
 		try {
-        	switch(i) {
-        		case 0:
-        			if (depositFlag) {
-	        			clickBanker();
-	        			pixelColor = robot.getPixelColor(item1X, item1Y).toString();
-			            depositFlag = false;
-        			}
-		            break;
-        		case 1:
-        			checkInBank(item1X, item1Y);
-        			
-        			robot.mouseMove(item1X, item1Y);
-        			robot.mousePress(InputEvent.BUTTON3_MASK);
-		            robot.mouseRelease(InputEvent.BUTTON3_MASK);
-		            Thread.sleep(500);
-		            break;
-        		case 2:
-        			robot.mouseMove(item1X, item1Y + 110);
-        			robot.mousePress(InputEvent.BUTTON1_MASK);
-		            robot.mouseRelease(InputEvent.BUTTON1_MASK);
-	       			Thread.sleep(1000);
-	       			
-		            pressESC();
-		            break;
-        		case 3:
-        			robot.mouseMove(invX, invY);
-        			Thread.sleep(500);
-        			robot.mousePress(InputEvent.BUTTON3_MASK);
-		            robot.mouseRelease(InputEvent.BUTTON3_MASK);
-		            Thread.sleep(500);
-		            break;
-        		case 4:
-        			robot.mouseMove(invX, invY + 55);
-        			robot.mousePress(InputEvent.BUTTON1_MASK);
-		            robot.mouseRelease(InputEvent.BUTTON1_MASK);
-		            Thread.sleep(spaceDelay);
-        			break;
-        		case 5:
-        			robot.keyPress(NativeKeyEvent.VK_SPACE);
-		            robot.keyRelease(NativeKeyEvent.VK_SPACE);
-		            Thread.sleep(19000);
-		            break;
-        		case 6:
-        			robot.mouseMove(bankerX, bankerY);
-        			robot.mousePress(InputEvent.BUTTON1_MASK);
-		            robot.mouseRelease(InputEvent.BUTTON1_MASK);
-		            Thread.sleep(bankDelay);
-		            break;
-        		case 7:
-        			robot.mouseMove(depositX, depositY);
-        			robot.mousePress(InputEvent.BUTTON3_MASK);
-		            robot.mouseRelease(InputEvent.BUTTON3_MASK);
-		            Thread.sleep(800);
-		            break;
-        		case 8:
-        			robot.mouseMove(depositX, depositY + 110);
-        			robot.mousePress(InputEvent.BUTTON1_MASK);
-		            robot.mouseRelease(InputEvent.BUTTON1_MASK);
-		            Thread.sleep(1000);
-		            break;
-        	}
-        } catch (InterruptedException ex) {}
+			params.add(0, 10);
+			params.add(1, 900);
+			
+			controller.executeClick(CommandKey.LEFT_CLICK, invX, invY, 0);
+			Thread.sleep(700);
+			
+			controller.executeClick(CommandKey.LEFT_CLICK, invX + 45, invY, 0);
+			Thread.sleep(spaceDelay);
+			
+			controller.executeTypeString(" ");
+			Thread.sleep(1000);
+		
+			controller.executeSpecial(CommandKey.RANDOM_MOVE_CAMERA, params, false);
+			
+			Thread.sleep(10000);
+		} catch (InterruptedException ie) {
+			return;
+		}
 	}
 	
-	private static void headlessArrows(int i) {
+	private static void alchemy() {
 		try {
-        	switch(i) {
-        		case 0:
-        			robot.mouseMove(invX, invY);
-        			robot.mousePress(InputEvent.BUTTON1_MASK);
-		            robot.mouseRelease(InputEvent.BUTTON1_MASK);
-		            Thread.sleep(700);
-		            break;
-        		case 1:
-        			robot.mouseMove(invX + 45, invY);
-        			robot.mousePress(InputEvent.BUTTON1_MASK);
-		            robot.mouseRelease(InputEvent.BUTTON1_MASK);
-		            Thread.sleep(spaceDelay);
-		            break;
-        		case 2:
-        			robot.keyPress(NativeKeyEvent.VK_SPACE);
-		            robot.keyRelease(NativeKeyEvent.VK_SPACE);
-		            Thread.sleep(1000);
-		            
-		            randomMoveCamera(1, 900);
-		            
-		            Thread.sleep(10000);
-		            break;
-        	}
-		} catch (InterruptedException ex) {}
+			params.add(0, 15);
+			params.add(1, 1000);
+			
+			controller.executeClick(CommandKey.LEFT_CLICK, item1X, item1Y, 0);
+			Thread.sleep(500);
+			
+			controller.executeClick(CommandKey.LEFT_CLICK, item1X, item1Y, 0);
+			
+			if (cycleCount >= 21) {
+				controller.executeSpecial(CommandKey.RANDOM_MOVE_CAMERA, params, false);
+            	
+	            cycleCount = 0;
+            } else {
+            	Thread.sleep((long) (Math.random() + 1.5) * 1000);
+            	cycleCount++;
+            }
+            
+            Thread.sleep(1050);
+		} catch (InterruptedException ie) {
+			return;
+		}
 	}
 	
-	private static void alchemy(int i) {
-		 try {
-        	switch(i) {
-        		case 0:
-        			robot.mouseMove(item1X, item1Y);
-        			robot.mousePress(InputEvent.BUTTON1_MASK);
-		            robot.mouseRelease(InputEvent.BUTTON1_MASK);
-		            Thread.sleep(500);
-		            break;
-        		case 1:
-        			robot.mouseMove(item1X, item1Y);
-        			robot.mousePress(InputEvent.BUTTON1_MASK);
-		            robot.mouseRelease(InputEvent.BUTTON1_MASK);
-		            
-		            if (cycleCount >= 21) {
-		            	randomMoveCamera(1.5, 1000);
-		            	
-			            cycleCount = 0;
-		            } else {
-		            	Thread.sleep((long) (Math.random() + 1.5) * 1000);
-		            	cycleCount++;
-		            }
-		            
-		            Thread.sleep(1050);
-		            break;
-        	}
- 		} catch (InterruptedException ex) {}
+	private static void cleanHerbs() {
+		try {
+			params.add(0, item1X);
+			params.add(1, item1Y - 50);
+			
+			if (depositFlag) {
+				clickBanker();
+				controller.executeSpecial(CommandKey.SAVE_PIXEL_COLOR, params, false);
+				depositFlag = false;
+			}
+			
+			checkInBank();
+			
+			controller.executeClick(CommandKey.RIGHT_CLICK, item1X, item1Y, 0);
+			Thread.sleep(500);
+			
+			controller.executeClick(CommandKey.LEFT_CLICK, item1X, item1Y + 110, 0);
+			Thread.sleep(1000);
+			
+			controller.executeSpecial(CommandKey.PRESS_ESC, params, false);
+			
+			controller.executeClick(CommandKey.LEFT_CLICK, invX, invY, 500);
+			Thread.sleep(spaceDelay);
+			
+			controller.executeTypeString(" ");
+			
+			if (cycleCount >= 19) {
+				params.add(0, 12);
+				params.add(1, 1000);
+				
+				controller.executeSpecial(CommandKey.RANDOM_MOVE_CAMERA, params, false);
+            }
+            cycleCount++;
+            
+            Thread.sleep(19000);
+            
+            if (cycleCount >= 20) {
+				resetCamera();
+	            cycleCount = 0;
+			}
+			
+            clickBanker();
+            
+            controller.executeClick(CommandKey.LEFT_CLICK, depositX, depositY, 0);
+            Thread.sleep(1000);
+		} catch (InterruptedException ie) {
+			return;
+		}
 	}
 	
-	private static void arrowShafts(int i) {
+	private static void potions() {
 		try {
-        	switch(i) {
-        		case 0:
-        			robot.mouseMove(bankerX, bankerY);
-        			robot.mousePress(InputEvent.BUTTON1_MASK);
-		            robot.mouseRelease(InputEvent.BUTTON1_MASK);
-		            Thread.sleep(bankDelay);
-		            break;
-        		case 1:
-        			robot.mouseMove(item1X, item1Y);
-        			robot.mousePress(InputEvent.BUTTON3_MASK);
-		            robot.mouseRelease(InputEvent.BUTTON3_MASK);
-		            Thread.sleep(500);
-		            break;
-        		case 2:
-        			robot.mouseMove(item1X, item1Y + 110);
-        			robot.mousePress(InputEvent.BUTTON1_MASK);
-		            robot.mouseRelease(InputEvent.BUTTON1_MASK);
-	       			Thread.sleep(1000);
-
-	       			pressESC();
-		            break;
-        		case 3:
-        			robot.mouseMove(invX, invY);
-        			Thread.sleep(500);
-        			robot.mousePress(InputEvent.BUTTON1_MASK);
-		            robot.mouseRelease(InputEvent.BUTTON1_MASK);
-		            Thread.sleep(spaceDelay);
-		            break;
-        		case 4:
-        			robot.keyPress(NativeKeyEvent.VK_SPACE);
-		            robot.keyRelease(NativeKeyEvent.VK_SPACE);
-		            Thread.sleep(50000);
-		            break;
-        	}
-        } catch (InterruptedException ex) {}
+			params.add(0, presetX);
+			params.add(1, presetY);
+			
+			if (depositFlag) {
+				clickBanker();
+				controller.executeSpecial(CommandKey.SAVE_PIXEL_COLOR, params, false);
+				depositFlag = false;
+			}
+			
+			checkInBank();
+			
+			controller.executeClick(CommandKey.LEFT_CLICK, presetX, presetY, 0);
+			Thread.sleep(1500);
+			
+			controller.executeClick(CommandKey.LEFT_CLICK, invX, invY, 500);
+			Thread.sleep(700);
+			
+			controller.executeClick(CommandKey.LEFT_CLICK, invX + 45, invY, 500);
+			Thread.sleep(spaceDelay);
+			
+			controller.executeTypeString(" ");
+			
+			if (cycleCount >= 13) {
+            	params.add(0, 15);
+				params.add(1, 1000);
+				
+				controller.executeSpecial(CommandKey.RANDOM_MOVE_CAMERA, params, false);
+            }
+            cycleCount++;
+            
+            Thread.sleep(18000);
+            
+            if (cycleCount >= 14) {
+				resetCamera();
+	            cycleCount = 0;
+			}
+            
+            clickBanker();
+		} catch (InterruptedException ie) {
+			return;
+		}
 	}
 	
-	private static void cleanHerbs(int i) {
+	private static void shieldbows() {
 		try {
-        	switch(i) {
-        		case 0:
-        			if (depositFlag) {
-	        			clickBanker();
-	        			pixelColor = robot.getPixelColor(item1X, item1Y - 50).toString();
-			            depositFlag = false;
-        			}
-		            break;
-        		case 1:
-        			checkInBank(item1X, item1Y - 50);
-        			
-        			robot.mouseMove(item1X, item1Y);
-        			robot.mousePress(InputEvent.BUTTON3_MASK);
-		            robot.mouseRelease(InputEvent.BUTTON3_MASK);
-		            Thread.sleep(500);
-		            break;
-        		case 2:
-        			robot.mouseMove(item1X, item1Y + 110);
-        			robot.mousePress(InputEvent.BUTTON1_MASK);
-		            robot.mouseRelease(InputEvent.BUTTON1_MASK);
-	       			Thread.sleep(1000);
-	       			
-		            pressESC();
-		            break;
-        		case 3:
-        			robot.mouseMove(invX, invY);
-        			Thread.sleep(500);
-        			robot.mousePress(InputEvent.BUTTON1_MASK);
-		            robot.mouseRelease(InputEvent.BUTTON1_MASK);
-		            Thread.sleep(spaceDelay);
-		            break;
-        		case 4:
-        			robot.keyPress(NativeKeyEvent.VK_SPACE);
-		            robot.keyRelease(NativeKeyEvent.VK_SPACE);
-		            
-		            if (cycleCount >= 19) {
-		            	randomMoveCamera(1.2, 1000);
-		            }
-		            cycleCount++;
-		            
-		            Thread.sleep(19000);
-		            break;
-        		case 5:
-        			if (cycleCount >= 20) {
-        				resetCamera();
-    		            cycleCount = 0;
-        			}
-        			
-        			robot.mouseMove(bankerX, bankerY);
-        			robot.mousePress(InputEvent.BUTTON1_MASK);
-		            robot.mouseRelease(InputEvent.BUTTON1_MASK);
-		            Thread.sleep(bankDelay);
-		            break;
-        		case 6:
-        			robot.mouseMove(depositX, depositY);
-        			robot.mousePress(InputEvent.BUTTON3_MASK);
-		            robot.mouseRelease(InputEvent.BUTTON3_MASK);
-		            Thread.sleep(800);
-		            break;
-        		case 7:
-        			robot.mouseMove(depositX, depositY + 110);
-        			robot.mousePress(InputEvent.BUTTON1_MASK);
-		            robot.mouseRelease(InputEvent.BUTTON1_MASK);
-		            Thread.sleep(1000);
-		            break;
-        	}
-        } catch (InterruptedException ex) {}
-	}
-	
-	private static void potions(int i) {
-		try {
-        	switch(i) {
-        		case 0:
-        			if (depositFlag) {
-	        			clickBanker();
-	        			pixelColor = robot.getPixelColor(presetX, presetY).toString();
-			            depositFlag = false;
-        			}
-		            break;
-        		case 1:
-        			checkInBank(presetX, presetY);
-        			
-        			robot.mouseMove(presetX, presetY);
-        			robot.mousePress(InputEvent.BUTTON1_MASK);
-		            robot.mouseRelease(InputEvent.BUTTON1_MASK);
-		            Thread.sleep(1500);
-		            break;
-        		case 2:
-        			robot.mouseMove(invX, invY);
-        			Thread.sleep(500);
-        			robot.mousePress(InputEvent.BUTTON1_MASK);
-		            robot.mouseRelease(InputEvent.BUTTON1_MASK);
-		            Thread.sleep(700);
-		            break;
-        		case 3:
-        			robot.mouseMove(invX + 45, invY);
-        			Thread.sleep(500);
-        			robot.mousePress(InputEvent.BUTTON1_MASK);
-		            robot.mouseRelease(InputEvent.BUTTON1_MASK);
-		            Thread.sleep(spaceDelay);
-		            break;
-        		case 4:
-        			robot.keyPress(NativeKeyEvent.VK_SPACE);
-		            robot.keyRelease(NativeKeyEvent.VK_SPACE);
-		            
-		            if (cycleCount >= 13) {
-		            	randomMoveCamera(1.5, 1000);
-		            }
-		            cycleCount++;
-		            
-		            Thread.sleep(18000);
-		            break;
-        		case 5:
-        			if (cycleCount >= 14) {
-        				resetCamera();
-    		            cycleCount = 0;
-        			}
-        			
-        			robot.mouseMove(bankerX, bankerY);
-        			robot.mousePress(InputEvent.BUTTON1_MASK);
-		            robot.mouseRelease(InputEvent.BUTTON1_MASK);
-		            Thread.sleep(bankDelay);
-		            break;
-        	}
-        } catch (InterruptedException ex) {}
-	}
-	
-	private static void shieldbows(int i) {
-		try {
-        	switch(i) {
-        		case 0:
-        			if (depositFlag) {
-	        			clickBanker();
-	        			pixelColor = robot.getPixelColor(item1X, item1Y).toString();
-			            depositFlag = false;
-        			}
-		            break;
-        		case 1:
-        			checkInBank(item1X, item1Y);
-        			
-        			robot.mouseMove(item1X, item1Y);
-        			robot.mousePress(InputEvent.BUTTON3_MASK);
-		            robot.mouseRelease(InputEvent.BUTTON3_MASK);
-		            Thread.sleep(500);
-		            break;
-        		case 2:
-        			robot.mouseMove(item1X, item1Y + 110);
-        			robot.mousePress(InputEvent.BUTTON1_MASK);
-		            robot.mouseRelease(InputEvent.BUTTON1_MASK);
-	       			Thread.sleep(1000);
-
-	       			pressESC();
-		            break;
-        		case 3:
-        			robot.mouseMove(invX, invY);
-        			Thread.sleep(500);
-        			robot.mousePress(InputEvent.BUTTON1_MASK);
-		            robot.mouseRelease(InputEvent.BUTTON1_MASK);
-		            Thread.sleep(spaceDelay);
-		            break;
-        		case 4:
-        			robot.keyPress(NativeKeyEvent.VK_SPACE);
-		            robot.keyRelease(NativeKeyEvent.VK_SPACE);
-		            
-		            if (cycleCount >= 9) {
-		            	randomMoveCamera(1.5, 1000);
-		            }
-		            cycleCount++;
-		            
-		            Thread.sleep(52000);
-		            break;
-        		case 5:
-        			if (cycleCount >= 10) {
-        				resetCamera();
-    		            cycleCount = 0;
-        			}
-        			
-        			robot.mouseMove(bankerX, bankerY);
-        			robot.mousePress(InputEvent.BUTTON1_MASK);
-		            robot.mouseRelease(InputEvent.BUTTON1_MASK);
-		            Thread.sleep(bankDelay);
-		            break;
-        		case 6:
-        			robot.mouseMove(depositX, depositY);
-        			robot.mousePress(InputEvent.BUTTON3_MASK);
-		            robot.mouseRelease(InputEvent.BUTTON3_MASK);
-		            Thread.sleep(800);
-		            break;
-        		case 7:
-        			robot.mouseMove(depositX, depositY + 110);
-        			robot.mousePress(InputEvent.BUTTON1_MASK);
-		            robot.mouseRelease(InputEvent.BUTTON1_MASK);
-		            Thread.sleep(1000);
-		            break;
-        	}
-        } catch (InterruptedException ex) {}
+			params.add(0, item1X);
+			params.add(1, item1Y);
+			
+			if (depositFlag) {
+				clickBanker();
+				controller.executeSpecial(CommandKey.SAVE_PIXEL_COLOR, params, false);
+				depositFlag = false;
+			}
+			
+			checkInBank();
+			
+			controller.executeClick(CommandKey.RIGHT_CLICK, item1X, item1Y, 0);
+			Thread.sleep(500);
+			
+			controller.executeClick(CommandKey.LEFT_CLICK, item1X, item1Y + 110, 0);
+			Thread.sleep(1000);
+			
+			controller.executeSpecial(CommandKey.PRESS_ESC, params, false);
+			
+			controller.executeClick(CommandKey.LEFT_CLICK, invX, invY, 500);
+			Thread.sleep(spaceDelay);
+			
+			controller.executeTypeString(" ");
+			
+			if (cycleCount >= 9) {
+				params.add(0, 15);
+				params.add(1, 1000);
+				
+				controller.executeSpecial(CommandKey.RANDOM_MOVE_CAMERA, params, false);
+            }
+            cycleCount++;
+            
+            Thread.sleep(52000);
+            
+            if (cycleCount >= 10) {
+				resetCamera();
+	            cycleCount = 0;
+			}
+            
+            clickBanker();
+            
+            controller.executeClick(CommandKey.LEFT_CLICK, depositX, depositY, 0);
+            Thread.sleep(1000);
+			
+		} catch (InterruptedException ie) {
+			return;
+		}
 	}
 	
 	private static void ivy() {
@@ -753,12 +580,12 @@ public class AutoClicker extends AutoClickerGUI implements Runnable{
         		case 0:
         			if (depositFlag) {
 	        			clickBanker();
-	        			pixelColor = robot.getPixelColor(presetX, presetY).toString();
+	        			//pixelColor = robot.getPixelColor(presetX, presetY).toString();
 			            depositFlag = false;
         			}
 		            break;
         		case 1:
-        			checkInBank(presetX, presetY);
+        			checkInBank();
         			
         			robot.mouseMove(presetX, presetY);
         			robot.mousePress(InputEvent.BUTTON1_MASK);
@@ -887,34 +714,14 @@ public class AutoClicker extends AutoClickerGUI implements Runnable{
 		} catch (InterruptedException ie) {}
 	}
 	
-	private static void clickBanker() {
-		try {
-			robot.mouseMove(bankerX, bankerY);
-			Thread.sleep(500);
-			
-			robot.mousePress(InputEvent.BUTTON1_MASK);
-	        robot.mouseRelease(InputEvent.BUTTON1_MASK);
-	        Thread.sleep(bankDelay);
-		} catch (InterruptedException ie) {}
+	private static void clickBanker() throws InterruptedException{
+		controller.executeClick(CommandKey.LEFT_CLICK, bankerX, bankerY, 500);
+	    Thread.sleep(bankDelay);
 	}
-	
-	private static void pressESC() {
-		try {
-			robot.keyPress(NativeKeyEvent.VK_ESCAPE);
-	        Thread.sleep(300);
-	        robot.keyRelease(NativeKeyEvent.VK_ESCAPE);
-	        Thread.sleep(1500);
-		} catch (InterruptedException ie) {}
-	}
-	
-	private static void resetCamera() {
-		try {
-			robot.mouseMove(cameraX, cameraY);
-	        Thread.sleep(200);
-			robot.mousePress(InputEvent.BUTTON1_MASK);
-	        robot.mouseRelease(InputEvent.BUTTON1_MASK);
-	        Thread.sleep(cameraDelay);
-		} catch (InterruptedException ie) {}
+
+	private static void resetCamera() throws InterruptedException{
+		controller.executeClick(CommandKey.LEFT_CLICK, cameraX, cameraY, 200);
+		Thread.sleep(cameraDelay);
 	}
 	
 	private static void randomMoveCamera(double timeOffset, int timeMultiplier) {
@@ -927,20 +734,19 @@ public class AutoClicker extends AutoClickerGUI implements Runnable{
         robot.keyRelease(move[moveIndex]);
 	}
 	
-	private static void checkInBank(int x, int y) {
-		if (!robot.getPixelColor(x, y).toString().equals(pixelColor)) {
-			try {Thread.sleep(2000);}
-			catch (InterruptedException ie) {}
+	private static void checkInBank() throws InterruptedException{
+		if (!controller.executeSpecial(CommandKey.CHECK_PIXEL_COLOR, params, false)) {
+			Thread.sleep(2000);
 			
-			pressESC();
+			controller.executeSpecial(CommandKey.PRESS_ESC, params, false);
 			resetCamera();
+			
 			if (bankDelay < 2500) {bankDelay += 200;}
 			clickBanker();
 		}
 		
-		if (!robot.getPixelColor(x, y).toString().equals(pixelColor)) {
-			robot.keyPress(NativeKeyEvent.VK_BACK_QUOTE);
-			robot.keyRelease(NativeKeyEvent.VK_BACK_QUOTE);
+		if (!controller.executeSpecial(CommandKey.CHECK_PIXEL_COLOR, params, false)) {
+			controller.executeTypeString("`");
 		}
 	}
 	
