@@ -5,7 +5,7 @@ Basic auto clicker/typer with custom macros.
 Keyboard and mouse capture functions do not work on Windows.  
 Basic click macros untested on other operating systems.
 
-2.1 ----------------------------------------------------------------------------------------------
+2.1 -------------------------------------------------------------------------------------------------------------------------
 - Added properties file, will save your deposit, inventory, and camera coordinates 
 automatically after running any bot with the new coordinates once.  Keep in the same 
 folder as the jar.  The program will still work without it but you won't be able to reset 
